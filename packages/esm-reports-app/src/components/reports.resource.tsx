@@ -107,6 +107,30 @@ export function useReportDefinitions() {
   };
 }
 
+export function useNmrsCategories() {
+  const apiUrl = `/ws/rest/v1/nmrsreports/categories`;
+
+  const { data, error, isValidating } = useSWR<{ data: any }, Error>(apiUrl, openmrsFetch);
+
+  return {
+    categories: data?.data || {},
+    error,
+    isLoading: isValidating,
+  };
+}
+
+export function useNmrsReportsByCategory(categoryType: string) {
+  const apiUrl = categoryType ? `/ws/rest/v1/nmrsreports/category?type=${categoryType}` : null;
+
+  const { data, error, isValidating } = useSWR<{ data: any }, Error>(apiUrl, openmrsFetch);
+
+  return {
+    reports: data?.data?.reports || [],
+    error,
+    isLoading: isValidating,
+  };
+}
+
 export function useReportDefinition(reportDefinitionUuid: string): ReportDefinition {
   const apiUrl = `/ws/rest/v1/reportingrest/reportDefinition/${reportDefinitionUuid}?v=full`;
 

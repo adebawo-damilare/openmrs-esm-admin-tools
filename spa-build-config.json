@@ -1,0 +1,6 @@
+{
+  "apiUrl": "http://localhost:8086",
+  "spaPath": "/openmrs/spa",
+  "pageTitle": "OpenMRS",
+  "supportOffline": false
+}

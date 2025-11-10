@@ -6,7 +6,7 @@ import { ExtensionSlot, showSnackbar, getCoreTranslation, useConfig } from '@ope
 import Overlay from './overlay.component';
 import ReportDataViewer from './report-data-viewer.component';
 import ReportParameter from './report-parameter.component';
-import { useReportDefinitions, useReportData, useLocations } from './reports.resource';
+import { useReportDefinitions, useReportData, useLocations, useNmrsCategories } from './reports.resource';
 import styles from './reports.scss';
 
 const ReportsDataOverviewComponent: React.FC = () => {
@@ -14,13 +14,23 @@ const ReportsDataOverviewComponent: React.FC = () => {
   const { locations } = useLocations();
   const [selectedReport, setSelectedReport] = useState('');
   const [reportParameters, setReportParameters] = useState<Record<string, string>>({});
+  const [selectedCategory, setSelectedCategory] = useState('');
 
   const { reportDefinitions } = useReportDefinitions();
+  const { categories } = useNmrsCategories();
   const { reportData, error, isLoading, mutate } = useReportData(selectedReport, reportParameters);
 
   const selectedReportDefinition = useMemo(() => {
     return reportDefinitions?.find((report) => report.uuid === selectedReport);
   }, [selectedReport, reportDefinitions]);
+
+  const filteredReportDefinitions = useMemo(() => {
+    if (!selectedCategory || !categories[selectedCategory]) {
+      return reportDefinitions;
+    }
+    const categoryReportUuids = categories[selectedCategory].map((report: any) => report.uuid);
+    return reportDefinitions?.filter((report) => categoryReportUuids.includes(report.uuid));
+  }, [selectedCategory, categories, reportDefinitions]);
 
   const handleDateChange = (parameterName: string, value: Date) => {
     const formattedDate = value ? dayjs(value).format('YYYY-MM-DDTHH:mm:ss.SSSZ') : '';
@@ -49,6 +59,12 @@ const ReportsDataOverviewComponent: React.FC = () => {
       // Then set the new report UUID
       setSelectedReport(newReportUuid);
     }
+  };
+
+  const handleCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedCategory(event.target.value);
+    setSelectedReport('');
+    setReportParameters({});
   };
 
   const handleFetchReport = () => {
@@ -116,13 +132,27 @@ const ReportsDataOverviewComponent: React.FC = () => {
         <div className={styles.filterForm}>
           <div className={styles.formField}>
             <Select
+              id="category-select"
+              labelText={t('selectCategory', 'Filter by Category')}
+              value={selectedCategory}
+              onChange={handleCategoryChange}
+            >
+              <SelectItem text={t('allCategories', 'All Categories')} value="" />
+              <SelectItem text={t('monitoring', 'Monitoring')} value="monitoring" />
+              <SelectItem text={t('dataQuality', 'Data Quality')} value="dataQuality" />
+              <SelectItem text={t('biometric', 'Biometric')} value="biometric" />
+              <SelectItem text={t('other', 'Other')} value="other" />
+            </Select>
+          </div>
+          <div className={styles.formField}>
+            <Select
               id="report-select"
               labelText={t('selectReport', 'Select Report')}
               value={selectedReport}
               onChange={handleReportChange}
             >
               <SelectItem text={t('selectReport', 'Select Report')} value="" />
-              {reportDefinitions?.map((report) => (
+              {filteredReportDefinitions?.map((report) => (
                 <SelectItem key={report.uuid} text={report.name} value={report.uuid} />
               ))}
             </Select>
