@@ -113,7 +113,7 @@ export function useNmrsCategories() {
   const { data, error, isValidating } = useSWR<{ data: any }, Error>(apiUrl, openmrsFetch);
 
   return {
-    categories: data?.data || {},
+    categories: data?.data?.categories || {},
     error,
     isLoading: isValidating,
   };
