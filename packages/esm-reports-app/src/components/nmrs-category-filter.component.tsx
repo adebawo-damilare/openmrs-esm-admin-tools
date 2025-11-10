@@ -12,8 +12,13 @@ const NmrsCategoryFilter: React.FC<NmrsCategoryFilterProps> = ({ selectedCategor
   const { t } = useTranslation();
   const { categories, isNmrsModuleInstalled, isLoading } = useNmrsReportCategories();
 
-  // Don't show if NMRS module is not installed
-  if (!isNmrsModuleInstalled || isLoading) {
+  // Don't show if NMRS module is not installed or still loading
+  if (isLoading) {
+    return null;
+  }
+
+  // Don't show if no categories data available
+  if (!categories || Object.keys(categories).length === 0) {
     return null;
   }
 
