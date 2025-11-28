@@ -32,7 +32,7 @@ import Overlay from './overlay.component';
 import ReportOverviewButton from './report-overview-button.component';
 import ReportStatus from './report-status.component';
 import RunReportForm from './run-report/run-report-form.component';
-import NmrsCategoryFilter from './nmrs-category-filter.component';
+// ...existing code...
 import { COMPLETED, RAN_REPORT_STATUSES, SAVED } from './report-statuses-constants';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZES } from './pagination-constants';
 import { PRIVILEGE_SYSTEM_DEVELOPER } from '../constants';
@@ -299,12 +299,7 @@ const OverviewComponent: React.FC = () => {
         <div className={styles.reportsLabelDiv}>
           <h3>{t('reports', 'Reports')}</h3>
         </div>
-        <div className={styles.filterSection}>
-          <NmrsCategoryFilter
-            selectedCategories={selectedNmrsCategories}
-            onCategoryChange={setSelectedNmrsCategories}
-          />
-        </div>
+        {/* Category filter removed as per user request */}
         <div className={styles.mainActionButtonsDiv}>
           <Button
             kind="ghost"
