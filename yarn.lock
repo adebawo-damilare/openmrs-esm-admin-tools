@@ -12,6 +12,35 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@adebawo-damilare/esm-reports-app@workspace:packages/esm-reports-app":
+  version: 0.0.0-use.local
+  resolution: "@adebawo-damilare/esm-reports-app@workspace:packages/esm-reports-app"
+  dependencies:
+    "@carbon/react": "npm:^1.83.0"
+    "@datasert/cronjs-matcher": "npm:^1.2.0"
+    "@datasert/cronjs-parser": "npm:^1.2.0"
+    "@types/react": "npm:^18.3.21"
+    "@types/react-dom": "npm:^18.3.0"
+    cronstrue: "npm:^2.41.0"
+    dayjs: "npm:^1.8.36"
+    lodash-es: "npm:^4.17.21"
+    react: "npm:^18.3.1"
+    react-dom: "npm:^18.3.1"
+    react-image-annotate: "npm:^1.8.0"
+    sass: "npm:^1.71.1"
+    webpack: "npm:^5.99.9"
+    webpack-cli: "npm:^6.0.1"
+  peerDependencies:
+    "@openmrs/esm-framework": "*"
+    dayjs: 1.x
+    i18next: "*"
+    react: 18.x
+    react-i18next: 16.x
+    react-router-dom: 6.x
+    rxjs: 6.x
+  languageName: unknown
+  linkType: soft
+
 "@adobe/css-tools@npm:^4.4.0":
   version: 4.4.0
   resolution: "@adobe/css-tools@npm:4.4.0"
@@ -3798,28 +3827,6 @@ __metadata:
   checksum: 10/29bb7ca0a6e9be7bc5ab5505621566ace279fd7a2da149f0937984502d349f2b78dd42f475c5e22b546b1b27d063bd8eb8e92093b0530a814169a535dc250cdc
   languageName: node
   linkType: hard
-
-"@nmrs-community/esm-reports-app@workspace:packages/esm-reports-app":
-  version: 0.0.0-use.local
-  resolution: "@nmrs-community/esm-reports-app@workspace:packages/esm-reports-app"
-  dependencies:
-    "@carbon/react": "npm:^1.83.0"
-    "@datasert/cronjs-matcher": "npm:^1.2.0"
-    "@datasert/cronjs-parser": "npm:^1.2.0"
-    cronstrue: "npm:^2.41.0"
-    dayjs: "npm:^1.8.36"
-    lodash-es: "npm:^4.17.21"
-    react-image-annotate: "npm:^1.8.0"
-  peerDependencies:
-    "@openmrs/esm-framework": "*"
-    dayjs: 1.x
-    i18next: "*"
-    react: 18.x
-    react-i18next: 16.x
-    react-router-dom: 6.x
-    rxjs: 6.x
-  languageName: unknown
-  linkType: soft
 
 "@nodelib/fs.scandir@npm:2.1.5":
   version: 2.1.5
