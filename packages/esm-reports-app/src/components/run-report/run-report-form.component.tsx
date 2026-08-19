@@ -14,6 +14,7 @@ import {
   useNmrsCategories,
 } from '../reports.resource';
 import styles from './run-report-form.scss';
+import { filterAndSortReportDefinitions } from './report-visibility';
 
 interface RunReportForm {
   closePanel: () => void;
@@ -36,11 +37,14 @@ const RunReportForm: React.FC<RunReportForm> = ({ closePanel }) => {
   const { locations } = useLocations();
 
   const filteredReportDefinitions = useMemo(() => {
-    if (!selectedCategory || !categories || !categories[selectedCategory]) {
-      return reportDefinitions;
+    let categoryReportDefinitions = reportDefinitions;
+
+    if (selectedCategory && categories?.[selectedCategory]) {
+      const categoryReportUuids = categories[selectedCategory].map((report: any) => report.uuid);
+      categoryReportDefinitions = reportDefinitions.filter((report) => categoryReportUuids.includes(report.uuid));
     }
-    const categoryReportUuids = categories[selectedCategory].map((report: any) => report.uuid);
-    return reportDefinitions?.filter((report) => categoryReportUuids.includes(report.uuid));
+
+    return filterAndSortReportDefinitions(categoryReportDefinitions);
   }, [selectedCategory, categories, reportDefinitions]);
 
   const supportedParameterTypes = useMemo(
