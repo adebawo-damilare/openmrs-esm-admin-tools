@@ -39,6 +39,9 @@ import { PRIVILEGE_SYSTEM_DEVELOPER } from '../constants';
 import styles from './reports.scss';
 import { type ConfigObject } from '../config-schema';
 
+// Backlogged until the scheduling and webview workflows are fully implemented.
+const SHOW_BACKLOGGED_REPORT_ACTIONS = false;
+
 const OverviewComponent: React.FC = () => {
   const { t } = useTranslation();
   const currentSession = useSession();
@@ -314,7 +317,7 @@ const OverviewComponent: React.FC = () => {
             {t('downloadReports', 'Download reports')}
           </Button>
           <Button
-            kind="ghost"
+            kind="tertiary"
             renderIcon={() => <Play size={16} className={styles.actionButtonIcon} />}
             iconDescription="Run reports"
             onClick={() => {
@@ -328,29 +331,33 @@ const OverviewComponent: React.FC = () => {
                 />,
               );
             }}
-            className={styles.mainActionButton}
+            className={classNames(styles.mainActionButton, styles.reportActionButton)}
           >
             {t('runReports', 'Run reports')}
           </Button>
           <Overlay />
-          <Button
-            className={styles.mainActionButton}
-            iconDescription="Report schedule"
-            kind="ghost"
-            onClick={() => navigate({ to: `\${openmrsSpaBase}/reports/scheduled-overview` })}
-            renderIcon={() => <Calendar size={16} className={styles.actionButtonIcon} />}
-          >
-            {t('reportSchedule', 'Report schedule')}
-          </Button>
-          <Button
-            className={styles.mainActionButton}
-            iconDescription="Report schedule"
-            kind="ghost"
-            onClick={() => navigate({ to: `\${openmrsSpaBase}/reports/reports-data-overview` })}
-            renderIcon={() => <Calendar size={16} className={styles.actionButtonIcon} />}
-          >
-            {t('viewReports', 'Reports Webview')}
-          </Button>
+          {SHOW_BACKLOGGED_REPORT_ACTIONS && (
+            <>
+              <Button
+                className={classNames(styles.mainActionButton, styles.reportActionButton)}
+                iconDescription="Report schedule"
+                kind="tertiary"
+                onClick={() => navigate({ to: `\${openmrsSpaBase}/reports/scheduled-overview` })}
+                renderIcon={() => <Calendar size={16} className={styles.actionButtonIcon} />}
+              >
+                {t('reportSchedule', 'Report schedule')}
+              </Button>
+              <Button
+                className={classNames(styles.mainActionButton, styles.reportActionButton)}
+                iconDescription="Reports Webview"
+                kind="tertiary"
+                onClick={() => navigate({ to: `\${openmrsSpaBase}/reports/reports-data-overview` })}
+                renderIcon={() => <Calendar size={16} className={styles.actionButtonIcon} />}
+              >
+                {t('viewReports', 'Reports Webview')}
+              </Button>
+            </>
+          )}
         </div>
       </div>
       <DataTable rows={reports} headers={tableHeaders} isSortable>

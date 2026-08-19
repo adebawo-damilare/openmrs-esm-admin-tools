@@ -91,6 +91,9 @@ describe('OverviewComponent', () => {
 
     const viewButtons = screen.queryAllByText('View');
     expect(viewButtons.length).toBe(1);
+    expect(screen.getByText('Run reports')).toBeInTheDocument();
+    expect(screen.queryByText('Report schedule')).not.toBeInTheDocument();
+    expect(screen.queryByText('Reports Webview')).not.toBeInTheDocument();
   });
 
   it('should show Download button when webPreviewViewReportUrl is NOT configured', async () => {

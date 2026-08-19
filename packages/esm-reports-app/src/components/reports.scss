@@ -2,6 +2,9 @@
 @use '@carbon/layout';
 @use '@carbon/themes';
 
+$nmrs-header-teal: #1c5d5e;
+$nmrs-header-teal-hover: #174a4b;
+
 .statusIcon {
   margin-bottom: calc(-1 * layout.$spacing-01);
   margin-right: layout.$spacing-02;
@@ -31,6 +34,24 @@
 
 .mainActionButton {
   margin-top: layout.$spacing-06;
+}
+
+// Carbon tertiary-button treatment for primary Reports actions. The teal is
+// aligned with the NMRS application header, while the white label and outline
+// retain contrast on the dark background.
+.reportActionButton {
+  min-inline-size: 10rem;
+  background-color: $nmrs-header-teal;
+  border-color: colors.$white;
+  color: colors.$white;
+
+  &:hover {
+    background-color: $nmrs-header-teal-hover;
+  }
+
+  .actionButtonIcon {
+    fill: currentColor;
+  }
 }
 
 .mainPanelDiv {
