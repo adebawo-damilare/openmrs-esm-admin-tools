@@ -6,7 +6,7 @@
 
 ```bash
 cd c:\Users\i7\openmrs_projects\openmrs-esm-admin-tools
-yarn turbo build --filter=@openmrs/esm-reports-app
+yarn turbo build --filter=@nmrs-community/esm-reports-app
 ```
 
 The built files will be in: `packages/esm-reports-app/dist/`
@@ -23,12 +23,12 @@ Copy the entire `dist` folder to your O3 distribution:
 
 ```powershell
 # Windows PowerShell
-Copy-Item -Path "packages\esm-reports-app\dist\*" -Destination "C:\path\to\your\distro\frontend\@openmrs\esm-reports-app" -Recurse -Force
+Copy-Item -Path "packages\esm-reports-app\dist\*" -Destination "C:\path\to\your\distro\frontend\nmrs-community-esm-reports-app" -Recurse -Force
 ```
 
 ```bash
 # Linux/Mac
-cp -r packages/esm-reports-app/dist/* /path/to/your/distro/frontend/@openmrs/esm-reports-app/
+cp -r packages/esm-reports-app/dist/* /path/to/your/distro/frontend/nmrs-community-esm-reports-app/
 ```
 
 #### Step 2: Update Import Map
@@ -38,7 +38,7 @@ Edit your distro's `frontend/import-map.json`:
 ```json
 {
   "imports": {
-    "@openmrs/esm-reports-app": "/openmrs/spa/@openmrs/esm-reports-app/openmrs-esm-reports-app.js"
+    "@nmrs-community/esm-reports-app": "/openmrs/spa/nmrs-community-esm-reports-app/nmrs-community-esm-reports-app.js"
   }
 }
 ```
@@ -85,7 +85,7 @@ If you already have an O3 distro running, you can override the reports app modul
 2. **Open Developer Console** (F12)
 3. **Click Import Map Overrides** button (bottom right)
 4. **Add override**:
-   - Module name: `@openmrs/esm-reports-app`
+   - Module name: `@nmrs-community/esm-reports-app`
    - URL: Point to your built files or development server
 
 ---
@@ -203,7 +203,7 @@ Navigate to: `http://localhost:8086/openmrs/spa/reports`
 **Issue**: Reports app not showing in menu
 
 - **Solution**: Check import map configuration
-- **Verify**: View page source and search for `@openmrs/esm-reports-app` in import map
+- **Verify**: View page source and search for `@nmrs-community/esm-reports-app` in import map
 
 **Issue**: API calls failing
 
@@ -236,7 +236,7 @@ Navigate to: `http://localhost:8086/openmrs/spa/reports`
 
 1. **frontend/import-map.json** - Module registration
 2. **frontend/config.json** or **spa-build-config.json** - Backend API URL
-3. **frontend/@openmrs/esm-reports-app/** - Deployed app files
+3. **frontend/nmrs-community-esm-reports-app/** - Deployed app files
 4. **Backend: nmrsreports-1.0.6.6-SNAPSHOT.omod** - Custom REST endpoints
 
 ### Backend REST Endpoints Added:
