@@ -33,6 +33,7 @@
   "exportCSV": "Export CSV",
   "failed": "Failed",
   "fetchReport": "Fetch Report",
+  "invalidReportDateRange": "End date must be on or after start date.",
   "invalidWebPreviewUrl": "Configured web preview URL is invalid.",
   "missingParameters": "Please provide the following parameters: {parameters}",
   "missingPlaceholder": "Configured web preview URL must include {reportRequestUuid} placeholder.",

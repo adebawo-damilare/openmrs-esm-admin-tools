@@ -54,6 +54,11 @@
   text-align: left;
 }
 
+.dateRangeError {
+  color: $danger;
+  margin: 0;
+}
+
 .cancelActionButton {
   text-decoration: underline;
   color: #525252;

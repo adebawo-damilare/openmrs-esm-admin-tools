@@ -14,6 +14,7 @@ import {
   useNmrsCategories,
 } from '../reports.resource';
 import styles from './run-report-form.scss';
+import { isReportDateRangeValid } from './date-range-validation';
 import { filterAndSortReportDefinitions } from './report-visibility';
 
 interface RunReportForm {
@@ -35,6 +36,7 @@ const RunReportForm: React.FC<RunReportForm> = ({ closePanel }) => {
   const { reportDefinitions } = useReportDefinitions();
   const { categories } = useNmrsCategories();
   const { locations } = useLocations();
+  const hasInvalidDateRange = !isReportDateRangeValid(reportParameters);
 
   const filteredReportDefinitions = useMemo(() => {
     let categoryReportDefinitions = reportDefinitions;
@@ -79,12 +81,25 @@ const RunReportForm: React.FC<RunReportForm> = ({ closePanel }) => {
         return isValid;
       }) ?? true;
 
-    if (!isAnyNotSupportedType && allRequiredParametersValid && reportUuid !== '' && renderModeUuid !== '') {
+    if (
+      !isAnyNotSupportedType &&
+      allRequiredParametersValid &&
+      !hasInvalidDateRange &&
+      reportUuid !== '' &&
+      renderModeUuid !== ''
+    ) {
       setIsFormValid(true);
     } else {
       setIsFormValid(false);
     }
-  }, [reportParameters, reportUuid, renderModeUuid, currentReport?.parameters, supportedParameterTypes]);
+  }, [
+    reportParameters,
+    reportUuid,
+    renderModeUuid,
+    currentReport?.parameters,
+    supportedParameterTypes,
+    hasInvalidDateRange,
+  ]);
 
   function handleOnChange(event) {
     const key = event.target.name;
@@ -220,6 +235,11 @@ const RunReportForm: React.FC<RunReportForm> = ({ closePanel }) => {
             />
           );
         })}
+        {hasInvalidDateRange && (
+          <p className={styles.dateRangeError} role="alert">
+            {t('invalidReportDateRange', 'End date must be on or after start date.')}
+          </p>
+        )}
       </div>
       <div className={styles.outputFormatDiv}>
         <Select
