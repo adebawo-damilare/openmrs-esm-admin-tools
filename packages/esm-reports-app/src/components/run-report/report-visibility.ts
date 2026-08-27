@@ -2,7 +2,8 @@ import type { ReportDefinition } from '../../types/report-definition';
 
 export const CANONICAL_ART_LINELIST_REPORT_UUID = 'fba05caa-7445-4bf4-acfc-d16d655e2500';
 export const LEGACY_ART_LINELIST_REPORT_UUID = '786688c2-2f13-481b-9459-99dd7e2f6899';
-export const EXCLUDED_REPORT_UUIDS = [LEGACY_ART_LINELIST_REPORT_UUID] as const;
+export const SI_RADET_REPORT_UUID = '45af899b-f6d2-4a46-b89a-e6b5696dd7de';
+export const EXCLUDED_REPORT_UUIDS = [LEGACY_ART_LINELIST_REPORT_UUID, SI_RADET_REPORT_UUID] as const;
 
 // Remove a report name from this array when it is ready to appear in the Run report list.
 export const EXCLUDED_REPORT_NAMES = [

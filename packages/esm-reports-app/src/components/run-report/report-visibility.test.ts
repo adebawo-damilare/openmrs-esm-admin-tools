@@ -4,6 +4,7 @@ import {
   EXCLUDED_REPORT_NAMES,
   filterAndSortReportDefinitions,
   LEGACY_ART_LINELIST_REPORT_UUID,
+  SI_RADET_REPORT_UUID,
 } from './report-visibility';
 
 const createReportDefinition = (name: string, uuid: string): ReportDefinition => ({
@@ -42,6 +43,12 @@ describe('filterAndSortReportDefinitions', () => {
 
   it('hides the obsolete ART report by UUID even when its display name looks current', () => {
     const reportDefinitions = [createReportDefinition('ART Linelist', LEGACY_ART_LINELIST_REPORT_UUID)];
+
+    expect(filterAndSortReportDefinitions(reportDefinitions)).toEqual([]);
+  });
+
+  it('hides the SI-RADET report by UUID after its packaged name is applied', () => {
+    const reportDefinitions = [createReportDefinition('ART - LINELIST', SI_RADET_REPORT_UUID)];
 
     expect(filterAndSortReportDefinitions(reportDefinitions)).toEqual([]);
   });
