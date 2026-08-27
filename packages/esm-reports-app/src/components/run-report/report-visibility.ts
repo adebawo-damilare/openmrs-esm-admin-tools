@@ -1,10 +1,13 @@
 import type { ReportDefinition } from '../../types/report-definition';
 
+export const CANONICAL_ART_LINELIST_REPORT_UUID = 'fba05caa-7445-4bf4-acfc-d16d655e2500';
+export const LEGACY_ART_LINELIST_REPORT_UUID = '786688c2-2f13-481b-9459-99dd7e2f6899';
+export const EXCLUDED_REPORT_UUIDS = [LEGACY_ART_LINELIST_REPORT_UUID] as const;
+
 // Remove a report name from this array when it is ready to appear in the Run report list.
 export const EXCLUDED_REPORT_NAMES = [
   'Active Patient By Regimen',
   'AHD Line List',
-  'ARTLinelist Report',
   'Biometric Line List',
   'Child Birth Registration',
   'Child Follow Up Report',
@@ -71,10 +74,23 @@ export const EXCLUDED_REPORT_NAMES = [
 ] as const;
 
 const excludedReportNames = new Set<string>(EXCLUDED_REPORT_NAMES);
+const excludedReportUuids = new Set<string>(EXCLUDED_REPORT_UUIDS);
+
+function useCanonicalReportName(reportDefinition: ReportDefinition): ReportDefinition {
+  if (reportDefinition.uuid === CANONICAL_ART_LINELIST_REPORT_UUID && reportDefinition.name !== 'ART Linelist') {
+    return { ...reportDefinition, name: 'ART Linelist' };
+  }
+
+  return reportDefinition;
+}
 
 export function filterAndSortReportDefinitions(reportDefinitions: ReportDefinition[] = []): ReportDefinition[] {
   return reportDefinitions
-    .filter((reportDefinition) => !excludedReportNames.has(reportDefinition.name.trim()))
+    .filter(
+      (reportDefinition) =>
+        !excludedReportUuids.has(reportDefinition.uuid) && !excludedReportNames.has(reportDefinition.name.trim()),
+    )
+    .map(useCanonicalReportName)
     .sort((firstReport, secondReport) =>
       firstReport.name.localeCompare(secondReport.name, undefined, { sensitivity: 'base' }),
     );
