@@ -188,7 +188,19 @@ export async function cancelReportRequest(reportRequestUuid: string) {
 }
 
 /** Do not delete a finished report when a stale Cancel button is clicked. */
-export async function cancelActiveReportRequest(reportRequestUuid: string) {
+export async function cancelActiveReportRequest(reportRequestUuid: string, statusEndpoint?: string) {
+  if (statusEndpoint?.startsWith('/ws/rest/v1/')) {
+    try {
+      return await openmrsFetch(
+        `${statusEndpoint.replace(/\/$/, '')}/${encodeURIComponent(reportRequestUuid)}/cancel`,
+        { method: 'POST' },
+      );
+    } catch (error) {
+      // An older server may not provide the optional endpoint. Never bypass
+      // permission/conflict errors; only an absent endpoint permits fallback.
+      if ((error?.response?.status ?? error?.status) !== 404) throw error;
+    }
+  }
   const { data } = await openmrsFetch<{ status: string }>(
     `/ws/rest/v1/reportingrest/reportRequest/${encodeURIComponent(reportRequestUuid)}`,
   );

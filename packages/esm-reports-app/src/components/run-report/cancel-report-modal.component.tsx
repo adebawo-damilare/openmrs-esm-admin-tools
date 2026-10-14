@@ -2,7 +2,8 @@ import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSWRConfig } from 'swr';
 import { ModalBody, Button, ModalFooter, ModalHeader, InlineLoading } from '@carbon/react';
-import { showSnackbar } from '@openmrs/esm-framework';
+import { showSnackbar, useConfig } from '@openmrs/esm-framework';
+import type { ConfigObject } from '../../config-schema';
 import { cancelActiveReportRequest, cancelReportRequest } from '../reports.resource';
 
 interface CancelReportModalProps {
@@ -15,6 +16,8 @@ type ModalType = 'delete' | 'cancel' | 'schedule';
 
 const CancelReportModal: React.FC<CancelReportModalProps> = ({ closeModal, reportRequestUuid, modalType }) => {
   const { t } = useTranslation();
+  const config = useConfig<ConfigObject>();
+  const statusEndpoint = config?.reportRequestStatusEndpoint;
   const { mutate } = useSWRConfig();
   const [isCanceling, setIsCanceling] = useState(false);
 
@@ -97,7 +100,7 @@ const CancelReportModal: React.FC<CancelReportModalProps> = ({ closeModal, repor
     try {
       setIsCanceling(true);
       if (modalType === 'cancel') {
-        await cancelActiveReportRequest(reportRequestUuid);
+        await cancelActiveReportRequest(reportRequestUuid, statusEndpoint);
       } else {
         await cancelReportRequest(reportRequestUuid);
       }
@@ -125,6 +128,7 @@ const CancelReportModal: React.FC<CancelReportModalProps> = ({ closeModal, repor
     getSuccessToastMessageByType,
     modalType,
     reportRequestUuid,
+    statusEndpoint,
   ]);
 
   return (

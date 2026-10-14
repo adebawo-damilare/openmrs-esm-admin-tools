@@ -1,6 +1,12 @@
 import { Type } from '@openmrs/esm-framework';
 
 export const configSchema = {
+  reportRequestStatusEndpoint: {
+    _type: Type.String,
+    _description:
+      'Optional batched lifecycle endpoint. Set to an empty string for standard Reporting REST only. NMRS supplies timestamps, recognized log stages and guarded cancellation.',
+    _default: '/ws/rest/v1/nmrsreports/requests',
+  },
   webPreviewViewReportUrl: {
     _type: Type.String,
     _description:
@@ -10,5 +16,6 @@ export const configSchema = {
 };
 
 export interface ConfigObject {
+  reportRequestStatusEndpoint: string;
   webPreviewViewReportUrl: string;
 }

@@ -32,6 +32,7 @@ import Overlay from './overlay.component';
 import ReportOverviewButton from './report-overview-button.component';
 import ReportStatus from './report-status.component';
 import ReportProgress from './report-progress.component';
+import { useReportProgress } from './report-progress.resource';
 import RunReportForm from './run-report/run-report-form.component';
 // ...existing code...
 import { COMPLETED, PROCESSING_REPORT_STATUSES, RAN_REPORT_STATUSES, SAVED } from './report-statuses-constants';
@@ -79,6 +80,7 @@ const OverviewComponent: React.FC = () => {
   );
 
   const layout = useLayoutType();
+  const progress = useReportProgress(reports);
 
   function getReportStatus(row) {
     return row?.cells.find((cell) => cell.info?.header === 'status')?.value;
@@ -444,7 +446,10 @@ const OverviewComponent: React.FC = () => {
                           <div>
                             <ReportStatus status={cell.value} />
                             <ReportProgress
-                              report={reports.find((report) => report.id === row.id) ?? { status: cell.value }}
+                              report={
+                                progress[row.id] ??
+                                reports.find((report) => report.id === row.id) ?? { status: cell.value }
+                              }
                             />
                           </div>
                         ) : cell.info.header === 'reportName' ? (
