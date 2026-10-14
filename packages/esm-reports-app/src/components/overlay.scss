@@ -3,6 +3,8 @@
 @use '@openmrs/esm-styleguide/src/vars' as *;
 
 .desktopOverlay {
+  display: flex;
+  flex-direction: column;
   position: fixed;
   top: layout.$spacing-09;
   width: 700px;
@@ -10,7 +12,7 @@
   bottom: 0;
   border-left: 1px solid $text-03;
   background-color: $ui-01;
-  overflow-y: auto;
+  overflow: hidden;
   height: calc(100vh - 3rem);
   z-index: 3;
 }
@@ -21,14 +23,15 @@
 }
 
 .tabletOverlay {
+  display: flex;
+  flex-direction: column;
   position: fixed;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 9999;
   background-color: $ui-01;
-  overflow-y: scroll;
+  overflow: hidden;
   -ms-overflow-style: none;
   scrollbar-width: none;
   z-index: 3;
@@ -36,13 +39,13 @@
   &::-webkit-scrollbar {
     width: 0;
   }
-
-  & > div {
-    margin-top: layout.$spacing-09;
-  }
 }
 
 .tabletOverlayHeader {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  min-height: layout.$spacing-09;
   button {
     @include brand-01(background-color);
   }
@@ -53,6 +56,7 @@
 }
 
 .desktopHeader {
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Button, ButtonSet, Form, Select, SelectItem } from '@carbon/react';
+import { Button, ButtonSet, Form, Select, SelectItem, Stack } from '@carbon/react';
 import classNames from 'classnames';
 import { take } from 'rxjs/operators';
 import { useTranslation } from 'react-i18next';
@@ -167,10 +167,14 @@ const RunReportForm: React.FC<RunReportForm> = ({ closePanel }) => {
 
   return (
     <Form className={styles.desktopRunReport} onSubmit={handleSubmit}>
-      <div className={styles.runReportInnerDivElement}>
+      <Stack
+        gap={5}
+        className={styles.formContent}
+        role="group"
+        aria-label={t('reportParameters', 'Report parameters')}
+      >
         <Select
           id="category-filter-select"
-          className={styles.basicInputElement}
           labelText={t('selectCategory', 'Filter by Category')}
           onChange={(e) => {
             setSelectedCategory(e.target.value);
@@ -187,11 +191,8 @@ const RunReportForm: React.FC<RunReportForm> = ({ closePanel }) => {
           <SelectItem text={t('biometric', 'Biometric')} value="biometric" />
           <SelectItem text={t('other', 'Other')} value="other" />
         </Select>
-      </div>
-      <div className={styles.runReportInnerDivElement}>
         <Select
           id="select-report"
-          className={styles.basicInputElement}
           labelText={t('selectReportLabel', 'Report')}
           onChange={(e) => {
             setReportUuid(e.target.value);
@@ -210,8 +211,6 @@ const RunReportForm: React.FC<RunReportForm> = ({ closePanel }) => {
             </SelectItem>
           ))}
         </Select>
-      </div>
-      <div id="reportParametersDiv" className={styles.runReportInnerDivElement}>
         {currentReport?.parameters?.map((parameter) => {
           return parameter.type === 'java.util.Date' ? (
             <ReportParameter
@@ -240,11 +239,8 @@ const RunReportForm: React.FC<RunReportForm> = ({ closePanel }) => {
             {t('invalidReportDateRange', 'End date must be on or after start date.')}
           </p>
         )}
-      </div>
-      <div className={styles.outputFormatDiv}>
         <Select
           id="output-format-select"
-          className={styles.basicInputElement}
           labelText={t('outputFormat', 'Output format')}
           onChange={(e) => setRenderModeUuid(e.target.value)}
           value={renderModeUuid}
@@ -256,8 +252,8 @@ const RunReportForm: React.FC<RunReportForm> = ({ closePanel }) => {
             </SelectItem>
           ))}
         </Select>
-      </div>
-      <div className={styles.buttonsDiv}>
+      </Stack>
+      <div className={styles.buttonsDiv} role="group" aria-label={t('reportActions', 'Report actions')}>
         <ButtonSet className={classNames({ [styles.tablet]: isTablet, [styles.desktop]: !isTablet })}>
           <Button onClick={closeOverlay} kind="secondary" size="xl" className={styles.reportButton}>
             {t('cancel', 'Cancel')}
