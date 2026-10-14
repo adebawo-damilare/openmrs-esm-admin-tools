@@ -13,6 +13,17 @@ Compared the NMRS fork (original HEAD `e1008df`, version 5.2.6) with the public 
 | [Framework modal for export-column selection (#352)](https://github.com/openmrs/openmrs-esm-admin-tools/commit/e4a4e7e) | Adopt before enabling webview exports; brings the column selector into the standard modal workflow instead of the older custom overlay. It is not a new server-side export engine. |
 | [Share SWR through module federation (#372)](https://github.com/openmrs/openmrs-esm-admin-tools/commit/c57716b) | Coordinate with the framework/build upgrade; shared cache behavior is useful for cross-component refresh. Do not change federation dependencies blindly in an otherwise small feature release. |
 
+## Adopted in NMRS reports 5.2.8
+
+- Pinned action footers and scrollable parameter fields for run/schedule overlays, with Carbon Stack spacing (#419/#423).
+- Standard framework PageHeader/PageHeaderContent on Reports, Scheduled Reports and Reports Webview (#408/#414). Framework 8 supplies these components but not ReportsPictogram, so the official MPL-2.0 OpenMRS reports SVG is backported locally without upgrading shared dependencies. Existing NMRS action colors are retained.
+- Correct double-brace interpolation of missing parameter names (#376), with a fallback for existing single-brace translations.
+- Registered framework modal for export-column selection (#352), including selection persistence, disabled empty exports and disposal when the viewer unmounts or its columns change.
+
+The schedule and Webview navigation actions remain hidden; these changes do not enable backlogged workflows. Report UUID filtering, required dates and date-order validation remain unchanged. Automated tests cover layout boundaries, accessible headers, missing-parameter messages, modal registration/lifecycle and selected-column CSV export across pagination.
+
+Framework/build-tool upgrades are separate because React, Carbon, framework APIs, module federation, bundlers and test tooling are shared across the monorepo and deployed O3 shell. Upgrade and compatibility-test them together; this release changes none of their versions. The package remains `@nmrs-community/esm-reports-app`; releasing this source does not itself publish to npm or update an installation's import map.
+
 ## Engineering updates, not extra end-user report features
 
 - [Remove observable-fetch dependency (#380)](https://github.com/openmrs/openmrs-esm-admin-tools/commit/a79ac9c): use standard promise-based fetching consistently; preserve asynchronous report queuing.
