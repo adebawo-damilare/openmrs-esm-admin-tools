@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@carbon/react';
-import { Calendar, Download, Play, Save, TrashCan, View } from '@carbon/react/icons';
+import { Calendar, Close, Download, Play, Save, TrashCan, View } from '@carbon/react/icons';
 import { downloadMultipleReports, downloadReport, preserveReport, useReports } from './reports.resource';
 import {
   ExtensionSlot,
@@ -33,7 +33,7 @@ import ReportOverviewButton from './report-overview-button.component';
 import ReportStatus from './report-status.component';
 import RunReportForm from './run-report/run-report-form.component';
 // ...existing code...
-import { COMPLETED, RAN_REPORT_STATUSES, SAVED } from './report-statuses-constants';
+import { COMPLETED, PROCESSING_REPORT_STATUSES, RAN_REPORT_STATUSES, SAVED } from './report-statuses-constants';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZES } from './pagination-constants';
 import { PRIVILEGE_SYSTEM_DEVELOPER } from '../constants';
 import styles from './reports.scss';
@@ -110,13 +110,13 @@ const OverviewComponent: React.FC = () => {
   function isCurrentUserTheSameAsReportRequestedByUser(reportRequestUuid: string) {
     const report = reports.find((tableRow) => tableRow.id === reportRequestUuid);
     const requestedByUserUuid = report?.requestedByUserUuid;
-    const currentUserUuid = currentSession?.user.uuid;
+    const currentUserUuid = currentSession?.user?.uuid;
 
-    return requestedByUserUuid === currentUserUuid;
+    return !!currentUserUuid && requestedByUserUuid === currentUserUuid;
   }
 
   function isSystemDeveloperUser() {
-    return userHasAccess(PRIVILEGE_SYSTEM_DEVELOPER, currentSession.user);
+    return !!currentSession?.user && userHasAccess(PRIVILEGE_SYSTEM_DEVELOPER, currentSession.user);
   }
 
   function isEligibleReportUser(reportRequestUuid: string) {
@@ -191,6 +191,17 @@ const OverviewComponent: React.FC = () => {
       },
       reportRequestUuid,
       modalType: 'delete',
+    });
+  };
+
+  const launchCancelReportDialog = (reportRequestUuid: string) => {
+    const dispose = showModal('cancel-report-modal', {
+      closeModal: () => {
+        dispose();
+        mutateReports();
+      },
+      reportRequestUuid,
+      modalType: 'cancel',
     });
   };
 
@@ -386,6 +397,16 @@ const OverviewComponent: React.FC = () => {
                       >
                         {cell.info.header === 'actions' ? (
                           <div className={styles.actionsContainer}>
+                            {PROCESSING_REPORT_STATUSES.includes(getReportStatus(row)) &&
+                              isEligibleReportUser(row.id) && (
+                                <Button
+                                  kind="ghost"
+                                  hasIconOnly
+                                  renderIcon={Close}
+                                  iconDescription={t('cancelReport', 'Cancel report')}
+                                  onClick={() => launchCancelReportDialog(row.id)}
+                                />
+                              )}
                             <ReportOverviewButton
                               icon={() => <View size={16} className={styles.actionButtonIcon} />}
                               label={t('view', 'View')}
@@ -412,7 +433,10 @@ const OverviewComponent: React.FC = () => {
                               label={t('delete', 'Delete')}
                               onClick={() => launchDeleteReportDialog(row.id)}
                               reportRequestUuid={row.id}
-                              shouldBeDisplayed={isEligibleReportUser(row.id)}
+                              shouldBeDisplayed={
+                                isEligibleReportUser(row.id) &&
+                                !PROCESSING_REPORT_STATUSES.includes(getReportStatus(row))
+                              }
                             />
                           </div>
                         ) : cell.info.header === 'status' ? (

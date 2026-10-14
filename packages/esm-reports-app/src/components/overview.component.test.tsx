@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { renderWithSwr } from '@tools/test-helpers';
 import { waitForLoadingToFinish } from '@tools/index';
-import { openmrsFetch, type Session, useConfig, useSession } from '@openmrs/esm-framework';
+import { openmrsFetch, type Session, useConfig, useSession, showModal, userHasAccess } from '@openmrs/esm-framework';
 import OverviewComponent from './overview.component';
 import { mockReports, mockSession } from '@mocks/index';
 import { useReports } from './reports.resource';
@@ -36,7 +36,36 @@ const mockUseConfig = useConfig as jest.Mock;
 describe('OverviewComponent', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.mocked(userHasAccess).mockReturnValue(true);
     mockUseSession.mockReturnValue(mockSession.data);
+  });
+
+  it.each(['REQUESTED', 'PROCESSING'])('offers Cancel, not Delete, for %s reports', (status) => {
+    mockUseConfig.mockReturnValue({ webPreviewViewReportUrl: '' });
+    mockUseReports.mockReturnValue({
+      reports: [{ ...mockReports[0], status }],
+      reportsTotalCount: 1,
+      mutateReports: jest.fn(),
+    });
+    renderWithSwr(<OverviewComponent />);
+    expect(screen.queryByText('Delete')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel report' }));
+    expect(showModal).toHaveBeenCalledWith(
+      'cancel-report-modal',
+      expect.objectContaining({ modalType: 'cancel', reportRequestUuid: mockReports[0].id }),
+    );
+  });
+
+  it('does not offer Cancel for another user without the required privilege', () => {
+    jest.mocked(userHasAccess).mockReturnValue(false);
+    mockUseConfig.mockReturnValue({ webPreviewViewReportUrl: '' });
+    mockUseReports.mockReturnValue({
+      reports: [{ ...mockReports[0], status: 'REQUESTED', requestedByUserUuid: 'someone-else' }],
+      reportsTotalCount: 1,
+      mutateReports: jest.fn(),
+    });
+    renderWithSwr(<OverviewComponent />);
+    expect(screen.queryByRole('button', { name: 'Cancel report' })).not.toBeInTheDocument();
   });
 
   it('should show View button for Web Preview reports', async () => {

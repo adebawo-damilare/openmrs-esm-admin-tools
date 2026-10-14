@@ -175,6 +175,17 @@ export async function cancelReportRequest(reportRequestUuid: string) {
   });
 }
 
+/** Do not delete a finished report when a stale Cancel button is clicked. */
+export async function cancelActiveReportRequest(reportRequestUuid: string) {
+  const { data } = await openmrsFetch<{ status: string }>(
+    `/ws/rest/v1/reportingrest/reportRequest/${encodeURIComponent(reportRequestUuid)}`,
+  );
+  if (data.status !== 'REQUESTED' && data.status !== 'PROCESSING') {
+    throw new Error('Report is no longer queued or running. Refresh the list.');
+  }
+  return cancelReportRequest(reportRequestUuid);
+}
+
 export async function preserveReport(reportRequestUuid: string) {
   const apiUrl = `/ws/rest/v1/reportingrest/saveReport?reportRequestUuid=${reportRequestUuid}`;
 

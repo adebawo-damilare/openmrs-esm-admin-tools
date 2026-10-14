@@ -100,5 +100,7 @@
   "unknownParameterType": "Unknown parameter type: {type} for parameter: {label}",
   "view": "View",
   "viewReports": "Reports Webview",
-  "yes": "Yes"
+  "yes": "Yes",
+  "cancelActiveReportModalText": "Cancel this report? Its request and any generated files will be removed. A running database query may take time to stop.",
+  "reportCancellationRequested": "Report cancellation requested"
 }

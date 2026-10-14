@@ -1,14 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { mutate } from 'swr';
+import { useSWRConfig } from 'swr';
 import { ModalBody, Button, ModalFooter, ModalHeader, InlineLoading } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
-import { cancelReportRequest } from '../reports.resource';
-import {
-  PROCESSING_REPORT_STATUSES,
-  RAN_REPORT_STATUSES,
-  SCHEDULED_REPORT_STATUSES,
-} from '../report-statuses-constants';
+import { cancelActiveReportRequest, cancelReportRequest } from '../reports.resource';
 
 interface CancelReportModalProps {
   closeModal: () => void;
@@ -20,6 +15,7 @@ type ModalType = 'delete' | 'cancel' | 'schedule';
 
 const CancelReportModal: React.FC<CancelReportModalProps> = ({ closeModal, reportRequestUuid, modalType }) => {
   const { t } = useTranslation();
+  const { mutate } = useSWRConfig();
   const [isCanceling, setIsCanceling] = useState(false);
 
   const getModalTitleByType = useCallback(
@@ -40,7 +36,10 @@ const CancelReportModal: React.FC<CancelReportModalProps> = ({ closeModal, repor
       if (modalType === 'delete') {
         return t('deleteReportModalText', 'Are you sure you want to delete this report?');
       } else if (modalType === 'cancel') {
-        return t('cancelReportModalText', 'Are you sure you want to cancel this report?');
+        return t(
+          'cancelActiveReportModalText',
+          'Cancel this report? Its request and any generated files will be removed. A running database query may take time to stop.',
+        );
       } else if (modalType === 'schedule') {
         return t('deleteReportScheduleModalText', 'Are you sure you want to delete this schedule?');
       }
@@ -53,7 +52,7 @@ const CancelReportModal: React.FC<CancelReportModalProps> = ({ closeModal, repor
       if (modalType === 'delete') {
         return t('reportDeletedSuccessfully', 'Report deleted successfully');
       } else if (modalType === 'cancel') {
-        return t('reportCancelledSuccessfully', 'Report cancelled successfully');
+        return t('reportCancellationRequested', 'Report cancellation requested');
       } else if (modalType === 'schedule') {
         return t('reportScheduleDeletedSuccessfully', 'Report schedule deleted successfully');
       }
@@ -85,11 +84,24 @@ const CancelReportModal: React.FC<CancelReportModalProps> = ({ closeModal, repor
     [t],
   );
 
+  const callMutates = useCallback(() => {
+    mutate(
+      (key) =>
+        typeof key === 'string' &&
+        (key.startsWith('/ws/rest/v1/reportingrest/reportRequest?') ||
+          key.startsWith('/ws/rest/v1/reportingrest/reportDefinitionsWithScheduledRequests')),
+    );
+  }, [mutate]);
+
   const handleCancel = useCallback(async () => {
     try {
       setIsCanceling(true);
-      await cancelReportRequest(reportRequestUuid);
-      callMutates(modalType);
+      if (modalType === 'cancel') {
+        await cancelActiveReportRequest(reportRequestUuid);
+      } else {
+        await cancelReportRequest(reportRequestUuid);
+      }
+      callMutates();
       closeModal();
       showSnackbar({
         kind: 'success',
@@ -106,6 +118,7 @@ const CancelReportModal: React.FC<CancelReportModalProps> = ({ closeModal, repor
       setIsCanceling(false);
     }
   }, [
+    callMutates,
     closeModal,
     getFailedToastMessageByType,
     getModalTitleByType,
@@ -113,18 +126,6 @@ const CancelReportModal: React.FC<CancelReportModalProps> = ({ closeModal, repor
     modalType,
     reportRequestUuid,
   ]);
-
-  const callMutates = (modalType: ModalType) => {
-    let baseUrl = '/ws/rest/v1/reportingrest/reportRequest?status=';
-    if (modalType === 'delete') {
-      mutate(baseUrl + RAN_REPORT_STATUSES.join(','));
-    } else if (modalType === 'cancel') {
-      mutate(baseUrl + RAN_REPORT_STATUSES.join(','));
-      mutate(baseUrl + PROCESSING_REPORT_STATUSES.join(','));
-    } else if (modalType === 'schedule') {
-      mutate(baseUrl + SCHEDULED_REPORT_STATUSES.join(',') + '&sortBy=name');
-    }
-  };
 
   return (
     <div>
