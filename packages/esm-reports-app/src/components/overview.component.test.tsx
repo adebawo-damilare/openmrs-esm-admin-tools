@@ -16,6 +16,13 @@ jest.mock('@openmrs/esm-framework', () => ({
   isDesktop: jest.fn(() => true),
   userHasAccess: jest.fn(() => true),
   ExtensionSlot: jest.fn(({ name }) => <div data-testid={`extension-slot-${name}`} />),
+  PageHeader: ({ children }) => <header>{children}</header>,
+  PageHeaderContent: ({ title, illustration }) => (
+    <>
+      {illustration}
+      {title}
+    </>
+  ),
   navigate: jest.fn(),
   showModal: jest.fn(),
 }));
@@ -38,6 +45,16 @@ describe('OverviewComponent', () => {
     jest.clearAllMocks();
     jest.mocked(userHasAccess).mockReturnValue(true);
     mockUseSession.mockReturnValue(mockSession.data);
+  });
+
+  it('shows the standard O3 heading and reports pictogram without exposing backlogged actions', () => {
+    mockUseConfig.mockReturnValue({ webPreviewViewReportUrl: '' });
+    mockUseReports.mockReturnValue({ reports: [], reportsTotalCount: 0, mutateReports: jest.fn() });
+    renderWithSwr(<OverviewComponent />);
+    expect(screen.getByRole('heading', { name: 'Reports', level: 1 })).toBeInTheDocument();
+    expect(screen.getByTestId('reports-pictogram')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Reports Webview' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Report schedule' })).not.toBeInTheDocument();
   });
 
   it.each(['REQUESTED', 'PROCESSING'])('offers Cancel, not Delete, for %s reports', (status) => {

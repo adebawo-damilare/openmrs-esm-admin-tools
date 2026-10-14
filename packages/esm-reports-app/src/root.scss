@@ -2,12 +2,12 @@
 @use '@carbon/type';
 
 .container {
-  padding: layout.$spacing-07;
+  min-height: 100%;
 }
 
 .welcome {
   @include type.type-style('heading-04');
-  margin: layout.$spacing-05 0; 
+  margin: layout.$spacing-05 0;
 }
 
 .explainer {

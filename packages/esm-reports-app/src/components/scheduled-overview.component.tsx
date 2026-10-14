@@ -12,7 +12,8 @@ import {
   TableHeader,
   TableRow,
 } from '@carbon/react';
-import { ExtensionSlot, isDesktop, useLayoutType, usePagination } from '@openmrs/esm-framework';
+import { isDesktop, useLayoutType, usePagination } from '@openmrs/esm-framework';
+import ReportsPageHeader from './reports-page-header.component';
 import { useScheduledReports } from './reports.resource';
 import Overlay from './overlay.component';
 import ScheduledOverviewCellContent from './scheduled-overview-cell-content.component';
@@ -55,12 +56,8 @@ const ScheduledOverviewComponent: React.FC = () => {
 
   return (
     <div>
-      <ExtensionSlot name="breadcrumbs-slot" className={styles.breadcrumb} />
-      <div className={styles.mainPanelDiv}>
-        <div className={styles.reportsLabelDiv}>
-          <h3>{t('scheduledReports', 'Scheduld Reports')}</h3>
-        </div>
-        <div className={styles.mainActionButtonsDiv}></div>
+      <ReportsPageHeader title={t('scheduledReports', 'Scheduled Reports')} />
+      <div className={styles.content}>
         <DataTable rows={results} headers={tableHeaders} isSortable={false}>
           {({ rows, headers }) => (
             <TableContainer>

@@ -17,7 +17,6 @@ import {
 import { Calendar, Close, Download, Play, Save, TrashCan, View } from '@carbon/react/icons';
 import { downloadMultipleReports, downloadReport, preserveReport, useReports } from './reports.resource';
 import {
-  ExtensionSlot,
   isDesktop,
   navigate,
   showModal,
@@ -29,6 +28,7 @@ import {
 } from '@openmrs/esm-framework';
 import { closeOverlay, launchOverlay } from '../hooks/useOverlay';
 import Overlay from './overlay.component';
+import ReportsPageHeader from './reports-page-header.component';
 import ReportOverviewButton from './report-overview-button.component';
 import ReportProgress from './report-progress.component';
 import { useReportProgress } from './report-progress.resource';
@@ -310,183 +310,182 @@ const OverviewComponent: React.FC = () => {
 
   return (
     <div>
-      <ExtensionSlot name="breadcrumbs-slot" className={styles.breadcrumb} />
-      <div className={styles.mainPanelDiv}>
-        <div className={styles.reportsLabelDiv}>
-          <h3>{t('reports', 'Reports')}</h3>
+      <ReportsPageHeader title={t('reports', 'Reports')} />
+      <div className={styles.content}>
+        <div className={styles.actionsRow}>
+          {/* Category filter removed as per user request */}
+          <div className={styles.mainActionButtonsDiv}>
+            <Button
+              kind="ghost"
+              renderIcon={() => <Download size={16} className={styles.actionButtonIcon} />}
+              iconDescription="Download reports"
+              onClick={() => handleDownloadMultipleReports(checkedReportUuidsArray.join(','))}
+              className={classNames(styles.mainActionButton, {
+                [styles.downloadReportsVisible]: downloadReportButtonVisible,
+                [styles.downloadReportsHidden]: !downloadReportButtonVisible,
+              })}
+            >
+              {t('downloadReports', 'Download reports')}
+            </Button>
+            <Button
+              kind="tertiary"
+              renderIcon={() => <Play size={16} className={styles.actionButtonIcon} />}
+              iconDescription="Run reports"
+              onClick={() => {
+                launchOverlay(
+                  t('runReport', 'Run Report'),
+                  <RunReportForm
+                    closePanel={() => {
+                      closeOverlay();
+                      mutateReports();
+                    }}
+                  />,
+                );
+              }}
+              className={classNames(styles.mainActionButton, styles.reportActionButton)}
+            >
+              {t('runReports', 'Run reports')}
+            </Button>
+            <Overlay />
+            {SHOW_BACKLOGGED_REPORT_ACTIONS && (
+              <>
+                <Button
+                  className={classNames(styles.mainActionButton, styles.reportActionButton)}
+                  iconDescription="Report schedule"
+                  kind="tertiary"
+                  onClick={() => navigate({ to: `\${openmrsSpaBase}/reports/scheduled-overview` })}
+                  renderIcon={() => <Calendar size={16} className={styles.actionButtonIcon} />}
+                >
+                  {t('reportSchedule', 'Report schedule')}
+                </Button>
+                <Button
+                  className={classNames(styles.mainActionButton, styles.reportActionButton)}
+                  iconDescription="Reports Webview"
+                  kind="tertiary"
+                  onClick={() => navigate({ to: `\${openmrsSpaBase}/reports/reports-data-overview` })}
+                  renderIcon={() => <Calendar size={16} className={styles.actionButtonIcon} />}
+                >
+                  {t('viewReports', 'Reports Webview')}
+                </Button>
+              </>
+            )}
+          </div>
         </div>
-        {/* Category filter removed as per user request */}
-        <div className={styles.mainActionButtonsDiv}>
-          <Button
-            kind="ghost"
-            renderIcon={() => <Download size={16} className={styles.actionButtonIcon} />}
-            iconDescription="Download reports"
-            onClick={() => handleDownloadMultipleReports(checkedReportUuidsArray.join(','))}
-            className={classNames(styles.mainActionButton, {
-              [styles.downloadReportsVisible]: downloadReportButtonVisible,
-              [styles.downloadReportsHidden]: !downloadReportButtonVisible,
-            })}
-          >
-            {t('downloadReports', 'Download reports')}
-          </Button>
-          <Button
-            kind="tertiary"
-            renderIcon={() => <Play size={16} className={styles.actionButtonIcon} />}
-            iconDescription="Run reports"
-            onClick={() => {
-              launchOverlay(
-                t('runReport', 'Run Report'),
-                <RunReportForm
-                  closePanel={() => {
-                    closeOverlay();
-                    mutateReports();
-                  }}
-                />,
-              );
-            }}
-            className={classNames(styles.mainActionButton, styles.reportActionButton)}
-          >
-            {t('runReports', 'Run reports')}
-          </Button>
-          <Overlay />
-          {SHOW_BACKLOGGED_REPORT_ACTIONS && (
-            <>
-              <Button
-                className={classNames(styles.mainActionButton, styles.reportActionButton)}
-                iconDescription="Report schedule"
-                kind="tertiary"
-                onClick={() => navigate({ to: `\${openmrsSpaBase}/reports/scheduled-overview` })}
-                renderIcon={() => <Calendar size={16} className={styles.actionButtonIcon} />}
-              >
-                {t('reportSchedule', 'Report schedule')}
-              </Button>
-              <Button
-                className={classNames(styles.mainActionButton, styles.reportActionButton)}
-                iconDescription="Reports Webview"
-                kind="tertiary"
-                onClick={() => navigate({ to: `\${openmrsSpaBase}/reports/reports-data-overview` })}
-                renderIcon={() => <Calendar size={16} className={styles.actionButtonIcon} />}
-              >
-                {t('viewReports', 'Reports Webview')}
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
-      <DataTable rows={reports} headers={tableHeaders} isSortable>
-        {({ rows, headers }) => (
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <th></th>
-                  {headers.map((header) => (
-                    <TableHeader key={header.key}>{header.header}</TableHeader>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.map((row, index) => (
-                  <TableRow className={styles.tableRow} key={index}>
-                    {renderRowCheckbox(row, index)}
-                    {row.cells.map((cell) => (
-                      <TableCell
-                        key={cell.id}
-                        className={classNames({
-                          [styles.rowCellEven]: index % 2 === 0,
-                          [styles.rowCellOdd]: index % 2 !== 0,
-                        })}
-                      >
-                        {cell.info.header === 'actions' ? (
-                          <div className={styles.actionsContainer}>
-                            {PROCESSING_REPORT_STATUSES.includes(getReportStatus(row)) &&
-                              isEligibleReportUser(row.id) && (
-                                <Button
-                                  kind="ghost"
-                                  renderIcon={Close}
-                                  iconDescription={t('cancelReport', 'Cancel report')}
-                                  aria-label={t('cancelReport', 'Cancel report')}
-                                  className={styles.actionButon}
-                                  onClick={() => launchCancelReportDialog(row.id)}
-                                >
-                                  {t('cancel', 'Cancel')}
-                                </Button>
-                              )}
-                            <ReportOverviewButton
-                              icon={() => <View size={16} className={styles.actionButtonIcon} />}
-                              label={t('view', 'View')}
-                              onClick={() => handleViewReport(row.id)}
-                              reportRequestUuid={row.id}
-                              shouldBeDisplayed={shouldShowViewButton(row)}
-                            />
-                            <ReportOverviewButton
-                              icon={() => <Download size={16} className={styles.actionButtonIcon} />}
-                              label={t('download', 'Download')}
-                              onClick={() => handleDownloadReport(row.id)}
-                              reportRequestUuid={row.id}
-                              shouldBeDisplayed={shouldShowDownloadButton(row)}
-                            />
-                            <ReportOverviewButton
-                              icon={() => <Save size={16} className={styles.actionButtonIcon} />}
-                              label={t('preserve', 'Preserve')}
-                              onClick={() => handlePreserveReport(row.id)}
-                              reportRequestUuid={row.id}
-                              shouldBeDisplayed={getReportStatus(row) === COMPLETED && isEligibleReportUser(row.id)}
-                            />
-                            <ReportOverviewButton
-                              icon={() => <TrashCan size={16} className={styles.actionButtonIcon} />}
-                              label={t('delete', 'Delete')}
-                              onClick={() => launchDeleteReportDialog(row.id)}
-                              reportRequestUuid={row.id}
-                              shouldBeDisplayed={
-                                isEligibleReportUser(row.id) &&
-                                !PROCESSING_REPORT_STATUSES.includes(getReportStatus(row))
-                              }
-                            />
-                          </div>
-                        ) : cell.info.header === 'status' ? (
-                          <div>
-                            <ReportProgress
-                              report={
-                                progress[row.id] ??
-                                reports.find((report) => report.id === row.id) ?? { status: cell.value }
-                              }
-                            />
-                          </div>
-                        ) : cell.info.header === 'reportName' ? (
-                          <div>{cell.value?.content ?? cell.value}</div>
-                        ) : (
-                          cell.value?.content ?? cell.value
-                        )}
-                      </TableCell>
+        <DataTable rows={reports} headers={tableHeaders} isSortable>
+          {({ rows, headers }) => (
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <th></th>
+                    {headers.map((header) => (
+                      <TableHeader key={header.key}>{header.header}</TableHeader>
                     ))}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
-      </DataTable>
-      {reports.length > 0 ? (
-        <Pagination
-          backwardText={t('previousPage', 'Previous page')}
-          forwardText={t('nextPage', 'Next page')}
-          onChange={({ pageSize: newPageSize, page: newPage }) => {
-            if (newPageSize !== pageSize) {
-              setPageSize(newPageSize);
-            }
+                </TableHead>
+                <TableBody>
+                  {rows.map((row, index) => (
+                    <TableRow className={styles.tableRow} key={index}>
+                      {renderRowCheckbox(row, index)}
+                      {row.cells.map((cell) => (
+                        <TableCell
+                          key={cell.id}
+                          className={classNames({
+                            [styles.rowCellEven]: index % 2 === 0,
+                            [styles.rowCellOdd]: index % 2 !== 0,
+                          })}
+                        >
+                          {cell.info.header === 'actions' ? (
+                            <div className={styles.actionsContainer}>
+                              {PROCESSING_REPORT_STATUSES.includes(getReportStatus(row)) &&
+                                isEligibleReportUser(row.id) && (
+                                  <Button
+                                    kind="ghost"
+                                    renderIcon={Close}
+                                    iconDescription={t('cancelReport', 'Cancel report')}
+                                    aria-label={t('cancelReport', 'Cancel report')}
+                                    className={styles.actionButon}
+                                    onClick={() => launchCancelReportDialog(row.id)}
+                                  >
+                                    {t('cancel', 'Cancel')}
+                                  </Button>
+                                )}
+                              <ReportOverviewButton
+                                icon={() => <View size={16} className={styles.actionButtonIcon} />}
+                                label={t('view', 'View')}
+                                onClick={() => handleViewReport(row.id)}
+                                reportRequestUuid={row.id}
+                                shouldBeDisplayed={shouldShowViewButton(row)}
+                              />
+                              <ReportOverviewButton
+                                icon={() => <Download size={16} className={styles.actionButtonIcon} />}
+                                label={t('download', 'Download')}
+                                onClick={() => handleDownloadReport(row.id)}
+                                reportRequestUuid={row.id}
+                                shouldBeDisplayed={shouldShowDownloadButton(row)}
+                              />
+                              <ReportOverviewButton
+                                icon={() => <Save size={16} className={styles.actionButtonIcon} />}
+                                label={t('preserve', 'Preserve')}
+                                onClick={() => handlePreserveReport(row.id)}
+                                reportRequestUuid={row.id}
+                                shouldBeDisplayed={getReportStatus(row) === COMPLETED && isEligibleReportUser(row.id)}
+                              />
+                              <ReportOverviewButton
+                                icon={() => <TrashCan size={16} className={styles.actionButtonIcon} />}
+                                label={t('delete', 'Delete')}
+                                onClick={() => launchDeleteReportDialog(row.id)}
+                                reportRequestUuid={row.id}
+                                shouldBeDisplayed={
+                                  isEligibleReportUser(row.id) &&
+                                  !PROCESSING_REPORT_STATUSES.includes(getReportStatus(row))
+                                }
+                              />
+                            </div>
+                          ) : cell.info.header === 'status' ? (
+                            <div>
+                              <ReportProgress
+                                report={
+                                  progress[row.id] ??
+                                  reports.find((report) => report.id === row.id) ?? { status: cell.value }
+                                }
+                              />
+                            </div>
+                          ) : cell.info.header === 'reportName' ? (
+                            <div>{cell.value?.content ?? cell.value}</div>
+                          ) : (
+                            cell.value?.content ?? cell.value
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </DataTable>
+        {reports.length > 0 ? (
+          <Pagination
+            backwardText={t('previousPage', 'Previous page')}
+            forwardText={t('nextPage', 'Next page')}
+            onChange={({ pageSize: newPageSize, page: newPage }) => {
+              if (newPageSize !== pageSize) {
+                setPageSize(newPageSize);
+              }
 
-            if (newPage !== currentPage) {
-              setCurrentPage(newPage);
-            }
-          }}
-          page={currentPage}
-          pageSize={pageSize}
-          pageSizes={DEFAULT_PAGE_SIZES}
-          size={isDesktop(layout) ? 'sm' : 'lg'}
-          totalItems={reportsTotalCount}
-        />
-      ) : null}
+              if (newPage !== currentPage) {
+                setCurrentPage(newPage);
+              }
+            }}
+            page={currentPage}
+            pageSize={pageSize}
+            pageSizes={DEFAULT_PAGE_SIZES}
+            size={isDesktop(layout) ? 'sm' : 'lg'}
+            totalItems={reportsTotalCount}
+          />
+        ) : null}
+      </div>
     </div>
   );
 };

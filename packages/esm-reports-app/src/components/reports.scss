@@ -5,6 +5,29 @@
 $nmrs-header-teal: #1c5d5e;
 $nmrs-header-teal-hover: #174a4b;
 
+.header {
+  background-color: colors.$white;
+  border-bottom: 1px solid colors.$gray-20;
+  margin-bottom: layout.$spacing-05;
+}
+
+.content {
+  padding: 0 layout.$spacing-07 layout.$spacing-07;
+}
+
+.actionsRow {
+  text-align: right;
+  margin-bottom: layout.$spacing-03;
+
+  .mainActionButtonsDiv {
+    height: auto;
+  }
+
+  .mainActionButton {
+    margin-top: 0;
+  }
+}
+
 .compactReportStatus {
   display: inline-flex;
   align-items: center;
