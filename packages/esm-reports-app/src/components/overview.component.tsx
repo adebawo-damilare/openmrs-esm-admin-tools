@@ -31,6 +31,7 @@ import { closeOverlay, launchOverlay } from '../hooks/useOverlay';
 import Overlay from './overlay.component';
 import ReportOverviewButton from './report-overview-button.component';
 import ReportStatus from './report-status.component';
+import ReportProgress from './report-progress.component';
 import RunReportForm from './run-report/run-report-form.component';
 // ...existing code...
 import { COMPLETED, PROCESSING_REPORT_STATUSES, RAN_REPORT_STATUSES, SAVED } from './report-statuses-constants';
@@ -442,6 +443,9 @@ const OverviewComponent: React.FC = () => {
                         ) : cell.info.header === 'status' ? (
                           <div>
                             <ReportStatus status={cell.value} />
+                            <ReportProgress
+                              report={reports.find((report) => report.id === row.id) ?? { status: cell.value }}
+                            />
                           </div>
                         ) : cell.info.header === 'reportName' ? (
                           <div>{cell.value?.content ?? cell.value}</div>

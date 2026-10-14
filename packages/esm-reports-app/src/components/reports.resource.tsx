@@ -1,7 +1,8 @@
 import { openmrsFetch, openmrsObservableFetch } from '@openmrs/esm-framework';
 import type { FetchResponse } from '@openmrs/esm-framework';
 import { type Observable } from 'rxjs';
-import useSWR from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
+import { PROCESSING_REPORT_STATUSES } from './report-statuses-constants';
 import type { ReportDefinition } from '../types/report-definition';
 import type { ReportDesign } from '../types/report-design';
 import type { ReportRequest } from '../types/report-request';
@@ -9,7 +10,7 @@ import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 
-interface ReportModel {
+export interface ReportModel {
   reportName: string;
   status: string;
   requestedBy: string;
@@ -20,6 +21,9 @@ interface ReportModel {
   id: string;
   evaluateCompleteDatetime: string;
   schedule: string;
+  requestDate?: string;
+  evaluateStartDatetime?: string;
+  renderCompleteDatetime?: string;
 }
 
 interface ScheduledReportModel {
@@ -44,9 +48,17 @@ export function useReports(statuses: string, pageNumber: number, pageSize: numbe
     `/ws/rest/v1/reportingrest/reportRequest?status=${statuses}&startIndex=${pageNumber}&limit=${pageSize}&totalCount=true` +
     (sortBy ? `&sortBy=${sortBy}` : '');
 
+  // Follow upstream #418: a numeric interval avoids resetting SWR's timer on
+  // each elapsed-time render. Stop network polling when the page is idle.
+  const { cache } = useSWRConfig();
+  const cached =
+    (cache.get(reportsUrl) as { data?: { data?: { results?: Array<{ status: string }> } } })?.data?.data?.results ?? [];
+  const hasActiveRequest = cached.some((report) => PROCESSING_REPORT_STATUSES.includes(report.status));
+
   const { data, error, isValidating, mutate } = useSWR<{ data: { results: Array<any>; totalCount: number } }, Error>(
     reportsUrl,
     openmrsFetch,
+    { refreshInterval: hasActiveRequest ? 5000 : 0 },
   );
 
   const reports = data?.data?.results;
@@ -217,12 +229,13 @@ function mapReportResults(data: any): ReportModel {
     status: data.status,
     requestedBy: data.requestedBy.person.display,
     requestedByUserUuid: data.requestedBy.uuid,
-    requestedOn: dayjs(data.requestDate).format('YYYY-MM-DD HH:mm'),
+    requestedOn: data.requestDate ? dayjs(data.requestDate).format('YYYY-MM-DD HH:mm:ss') : '',
+    requestDate: data.requestDate,
+    evaluateStartDatetime: data.evaluateStartDatetime,
+    renderCompleteDatetime: data.renderCompleteDatetime,
     outputFormat: data.renderingMode.label,
     parameters: convertParametersToString(data),
-    evaluateCompleteDatetime: data.evaluateCompleteDatetime
-      ? dayjs(data.evaluateCompleteDatetime).format('YYYY-MM-DD HH:mm')
-      : undefined,
+    evaluateCompleteDatetime: data.evaluateCompleteDatetime ? data.evaluateCompleteDatetime : undefined,
     schedule: data.schedule,
   };
 }

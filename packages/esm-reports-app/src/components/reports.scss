@@ -5,6 +5,13 @@
 $nmrs-header-teal: #1c5d5e;
 $nmrs-header-teal-hover: #174a4b;
 
+.reportProgress {
+  margin-top: layout.$spacing-02;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--cds-text-secondary);
+}
+
 .statusIcon {
   margin-bottom: calc(-1 * layout.$spacing-01);
   margin-right: layout.$spacing-02;

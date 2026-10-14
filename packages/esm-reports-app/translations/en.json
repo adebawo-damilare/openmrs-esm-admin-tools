@@ -102,5 +102,15 @@
   "viewReports": "Reports Webview",
   "yes": "Yes",
   "cancelActiveReportModalText": "Cancel this report? Its request and any generated files will be removed. A running database query may take time to stop.",
-  "reportCancellationRequested": "Report cancellation requested"
+  "reportCancellationRequested": "Report cancellation requested",
+  "waitingInQueue": "Waiting in queue",
+  "processingReport": "Processing report",
+  "evaluatingCohort": "Evaluating cohort",
+  "evaluatingReportData": "Evaluating report data",
+  "generatingReportOutput": "Generating output",
+  "writingReportOutput": "Writing output",
+  "cachingReportResults": "Caching results",
+  "finalReportProcessing": "Final processing",
+  "elapsedSinceRequest": "Elapsed since request",
+  "processingElapsed": "Processing elapsed"
 }
