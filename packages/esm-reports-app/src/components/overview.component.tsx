@@ -30,7 +30,6 @@ import {
 import { closeOverlay, launchOverlay } from '../hooks/useOverlay';
 import Overlay from './overlay.component';
 import ReportOverviewButton from './report-overview-button.component';
-import ReportStatus from './report-status.component';
 import ReportProgress from './report-progress.component';
 import { useReportProgress } from './report-progress.resource';
 import RunReportForm from './run-report/run-report-form.component';
@@ -404,11 +403,14 @@ const OverviewComponent: React.FC = () => {
                               isEligibleReportUser(row.id) && (
                                 <Button
                                   kind="ghost"
-                                  hasIconOnly
                                   renderIcon={Close}
                                   iconDescription={t('cancelReport', 'Cancel report')}
+                                  aria-label={t('cancelReport', 'Cancel report')}
+                                  className={styles.actionButon}
                                   onClick={() => launchCancelReportDialog(row.id)}
-                                />
+                                >
+                                  {t('cancel', 'Cancel')}
+                                </Button>
                               )}
                             <ReportOverviewButton
                               icon={() => <View size={16} className={styles.actionButtonIcon} />}
@@ -444,7 +446,6 @@ const OverviewComponent: React.FC = () => {
                           </div>
                         ) : cell.info.header === 'status' ? (
                           <div>
-                            <ReportStatus status={cell.value} />
                             <ReportProgress
                               report={
                                 progress[row.id] ??

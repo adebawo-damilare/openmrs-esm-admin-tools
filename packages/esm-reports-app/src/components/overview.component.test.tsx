@@ -50,6 +50,7 @@ describe('OverviewComponent', () => {
     renderWithSwr(<OverviewComponent />);
     expect(screen.queryByText('Delete')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Cancel report' }));
+    expect(screen.getByRole('button', { name: 'Cancel report' })).toHaveTextContent('Cancel');
     expect(showModal).toHaveBeenCalledWith(
       'cancel-report-modal',
       expect.objectContaining({ modalType: 'cancel', reportRequestUuid: mockReports[0].id }),

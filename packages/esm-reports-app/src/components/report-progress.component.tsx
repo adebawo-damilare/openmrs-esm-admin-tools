@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PROCESSING_REPORT_STATUSES } from './report-statuses-constants';
+import ReportStatus from './report-status.component';
 import styles from './reports.scss';
 
 export interface ReportProgressInfo {
@@ -31,10 +32,19 @@ const ReportProgress: React.FC<{ report: ReportProgressInfo }> = ({ report }) =>
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
   }, [active]);
-  if (!active) return null;
   const serverNow =
     report.serverTime != null && report.receivedAt != null ? report.serverTime + now - report.receivedAt : now;
-  const elapsed = elapsedTime(report.requestDate, serverNow);
+  const completed = report.status === 'COMPLETED' || report.status === 'SAVED';
+  const finishedAt = report.renderCompleteDatetime ?? report.evaluateCompleteDatetime;
+  const end = completed && finishedAt != null ? new Date(finishedAt).getTime() : undefined;
+  const start = report.requestDate != null && report.requestDate !== '' ? new Date(report.requestDate).getTime() : NaN;
+  const hasFinishedDuration =
+    completed && end != null && Number.isFinite(end) && Number.isFinite(start) && end >= start;
+  const elapsed = active
+    ? elapsedTime(report.requestDate, serverNow)
+    : hasFinishedDuration
+      ? elapsedTime(report.requestDate, end)
+      : null;
   const processing = elapsedTime(report.evaluateStartDatetime, serverNow);
   const stages = {
     QUEUED: t('waitingInQueue', 'Waiting in queue'),
@@ -57,19 +67,16 @@ const ReportProgress: React.FC<{ report: ReportProgressInfo }> = ({ report }) =>
           : report.evaluateStartDatetime
             ? 'EVALUATING'
             : 'PROCESSING');
+  const details: string[] = [];
+  if (active) details.push(stages[stage] || stages.PROCESSING);
+  if (elapsed) details.push(`${t('elapsedSinceRequest', 'Elapsed since request')}: ${elapsed}`);
+  if (active && processing) details.push(`${t('processingElapsed', 'Processing elapsed')}: ${processing}`);
+  if (completed && end != null && Number.isFinite(end))
+    details.push(`${t('reportOutputReady', 'Output ready')}: ${new Date(end).toLocaleString()}`);
   return (
-    <div className={styles.reportProgress}>
-      <div>{stages[stage] || stages.PROCESSING}</div>
-      {elapsed && (
-        <div>
-          {t('elapsedSinceRequest', 'Elapsed since request')}: {elapsed}
-        </div>
-      )}
-      {processing && (
-        <div>
-          {t('processingElapsed', 'Processing elapsed')}: {processing}
-        </div>
-      )}
+    <div className={styles.compactReportStatus} title={details.join('\n')}>
+      <ReportStatus status={report.status} />
+      {elapsed && <span>: {elapsed}</span>}
     </div>
   );
 };

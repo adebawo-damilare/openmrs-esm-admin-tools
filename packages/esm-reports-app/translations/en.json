@@ -112,5 +112,6 @@
   "cachingReportResults": "Caching results",
   "finalReportProcessing": "Final processing",
   "elapsedSinceRequest": "Elapsed since request",
-  "processingElapsed": "Processing elapsed"
+  "processingElapsed": "Processing elapsed",
+  "reportOutputReady": "Output ready"
 }
