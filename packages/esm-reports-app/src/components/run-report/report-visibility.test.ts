@@ -52,4 +52,28 @@ describe('filterAndSortReportDefinitions', () => {
 
     expect(filterAndSortReportDefinitions(reportDefinitions)).toEqual([]);
   });
+
+  it('shows only the reviewed pharmacy candidates alongside the existing reports, in alphabetical order', () => {
+    const definitions = [
+      createReportDefinition('Transit Client Linelist', 'transit-report'),
+      createReportDefinition('ERROR - PHARMACY FORMS WITHOUT DURATION', '4d8abe9b-1ec7-4dd0-bc2f-727b79b9e7cf'),
+      createReportDefinition('HTS EXPORT', 'hts-report'),
+      createReportDefinition('ARTLinelist Report', CANONICAL_ART_LINELIST_REPORT_UUID),
+      createReportDefinition(
+        'ERROR - PHARMACY FORM WITHOUT REGIMEN LINE OR REGIMEN',
+        '5165f183-74f8-47ee-b84d-e18432524c13',
+      ),
+      createReportDefinition('ERROR - INCOMPLETE VIRAL LOAD DATA', 'not-yet-reviewed'),
+      createReportDefinition('ART Linelist', LEGACY_ART_LINELIST_REPORT_UUID),
+    ];
+
+    expect(filterAndSortReportDefinitions(definitions).map(({ name }) => name)).toEqual([
+      'ART Linelist',
+      'ERROR - PHARMACY FORM WITHOUT REGIMEN LINE OR REGIMEN',
+      'ERROR - PHARMACY FORMS WITHOUT DURATION',
+      'HTS EXPORT',
+      'Transit Client Linelist',
+    ]);
+    expect(definitions[3].name).toBe('ARTLinelist Report');
+  });
 });
