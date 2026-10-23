@@ -71,6 +71,7 @@ describe('filterAndSortReportDefinitions', () => {
       createReportDefinition('SCHEDULED APPOINTMENT', '2bcc0d06-8120-4d85-99a7-530675b080e6'),
       createReportDefinition('MISSED APPOINTMENT', '319982d1-68dd-45f6-a0ef-ef1dc4e883dd'),
       createReportDefinition('Active Patient By Regimen', '2a1fc43b-fdb9-478b-a8fd-2b0c00e2e1de'),
+      createReportDefinition('Pediatric Regimen Analysis By Weight', '8ff55386-a22d-4c68-8389-620301d40dc5'),
       createReportDefinition('ART Linelist', LEGACY_ART_LINELIST_REPORT_UUID),
     ];
 
@@ -85,14 +86,15 @@ describe('filterAndSortReportDefinitions', () => {
       'HI - Fingerprint Statistics',
       'HTS EXPORT',
       'MISSED APPOINTMENT',
+      'Pediatric Regimen Analysis By Weight',
       'SCHEDULED APPOINTMENT',
       'Transit Client Linelist',
     ]);
     expect(definitions[3].name).toBe('ARTLinelist Report');
   });
 
-  it('removes only the nine reviewed names while retaining the other gates', () => {
-    expect(EXCLUDED_REPORT_NAMES).toHaveLength(56);
+  it('removes only the ten reviewed names while retaining the other gates', () => {
+    expect(EXCLUDED_REPORT_NAMES).toHaveLength(55);
     for (const name of [
       'ERROR - DUPLICATE ART START DATES',
       'ERROR - ENCOUNTER WITHOUT ADD PAST VISIT',
@@ -103,6 +105,7 @@ describe('filterAndSortReportDefinitions', () => {
       'SCHEDULED APPOINTMENT',
       'MISSED APPOINTMENT',
       'Active Patient By Regimen',
+      'Pediatric Regimen Analysis By Weight',
     ]) {
       expect(EXCLUDED_REPORT_NAMES).not.toContain(name);
     }
@@ -153,17 +156,35 @@ describe('filterAndSortReportDefinitions', () => {
     expect(definitions).toHaveLength(2);
   });
 
-  it('shows the reviewed active-regimen snapshot without exposing the other regimen reports or mutating identity', () => {
+  it('shows the reviewed active-regimen snapshot without exposing TXNEW or mutating identity', () => {
     const active = createReportDefinition('Active Patient By Regimen', '2a1fc43b-fdb9-478b-a8fd-2b0c00e2e1de');
     const definitions = [
       createReportDefinition('Regimen Analysis by TXNEW', 'txnew-backlog'),
-      createReportDefinition('Pediatric Regimen Analysis By Weight', 'pediatric-backlog'),
       createReportDefinition('ERROR - INCOMPLETE VIRAL LOAD DATA', 'viral-backlog'),
       active,
     ];
 
     expect(filterAndSortReportDefinitions(definitions)).toEqual([active]);
-    expect(definitions[3]).toBe(active);
+    expect(definitions[2]).toBe(active);
+    expect(definitions).toHaveLength(3);
+  });
+
+  it('shows the reviewed pediatric report and preserves historical trailing-space names without exposing backlogged reports', () => {
+    const pediatric = createReportDefinition(
+      'Pediatric Regimen Analysis By Weight ',
+      '8ff55386-a22d-4c68-8389-620301d40dc5',
+    );
+    const active = createReportDefinition('Active Patient By Regimen', '2a1fc43b-fdb9-478b-a8fd-2b0c00e2e1de');
+    const definitions = [
+      pediatric,
+      createReportDefinition('Regimen Analysis by TXNEW', 'txnew-backlog'),
+      createReportDefinition('ERROR - INCOMPLETE VIRAL LOAD DATA', 'viral-backlog'),
+      active,
+    ];
+
+    expect(filterAndSortReportDefinitions(definitions)).toEqual([active, pediatric]);
+    expect(definitions[0]).toBe(pediatric);
+    expect(definitions[0].name).toBe('Pediatric Regimen Analysis By Weight ');
     expect(definitions).toHaveLength(4);
   });
 });

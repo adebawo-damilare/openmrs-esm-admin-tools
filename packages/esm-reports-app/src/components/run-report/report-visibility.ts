@@ -47,7 +47,6 @@ export const EXCLUDED_REPORT_NAMES = [
   'OTZ Line List',
   'Patient Ever Enrolled',
   'Patient Line Listing',
-  'Pediatric Regimen Analysis By Weight',
   'PHARMACY - DRUG EXPORT',
   'PMTCT_Number of new ANC Clients',
   'PMTCT_Number of new ANC Clients tested for syphilis',
