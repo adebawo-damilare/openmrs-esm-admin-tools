@@ -26,7 +26,6 @@ export const EXCLUDED_REPORT_NAMES = [
   'Facility Lab Report',
   'Fatima Shaibu',
   'GENERAL ANTENATAL EXPORT',
-  'HI - Fingerprint Statistics',
   'HTS_TST',
   'LAB - Lab Report',
   'LAB - Viral Loads',

@@ -53,7 +53,7 @@ describe('filterAndSortReportDefinitions', () => {
     expect(filterAndSortReportDefinitions(reportDefinitions)).toEqual([]);
   });
 
-  it('shows reviewed pharmacy and structural audits alongside existing reports, in alphabetical order', () => {
+  it('shows reviewed audits and fingerprint statistics alongside existing reports, in alphabetical order', () => {
     const definitions = [
       createReportDefinition('Transit Client Linelist', 'transit-report'),
       createReportDefinition('ERROR - PHARMACY FORMS WITHOUT DURATION', '4d8abe9b-1ec7-4dd0-bc2f-727b79b9e7cf'),
@@ -67,7 +67,7 @@ describe('filterAndSortReportDefinitions', () => {
       createReportDefinition('ERROR - ENCOUNTER WITHOUT ADD PAST VISIT', '64b6148d-12b9-46df-bdba-896ae7504ae5'),
       createReportDefinition('ERROR - DUPLICATE ART START DATES', '5c4758bf-b1be-45ca-8924-daddc3963b24'),
       createReportDefinition('Biometric Line List', 'biometric-not-yet-reviewed'),
-      createReportDefinition('HI - Fingerprint Statistics', 'fingerprint-not-yet-reviewed'),
+      createReportDefinition('HI - Fingerprint Statistics', '6001512e-8cd3-4f5c-9c86-02f9989effb1'),
       createReportDefinition('ART Linelist', LEGACY_ART_LINELIST_REPORT_UUID),
     ];
 
@@ -77,24 +77,37 @@ describe('filterAndSortReportDefinitions', () => {
       'ERROR - ENCOUNTER WITHOUT ADD PAST VISIT',
       'ERROR - PHARMACY FORM WITHOUT REGIMEN LINE OR REGIMEN',
       'ERROR - PHARMACY FORMS WITHOUT DURATION',
+      'HI - Fingerprint Statistics',
       'HTS EXPORT',
       'Transit Client Linelist',
     ]);
     expect(definitions[3].name).toBe('ARTLinelist Report');
   });
 
-  it('removes only the four reviewed audit names while retaining the other gates', () => {
-    expect(EXCLUDED_REPORT_NAMES).toHaveLength(61);
+  it('removes only the five reviewed names while retaining the other gates', () => {
+    expect(EXCLUDED_REPORT_NAMES).toHaveLength(60);
     for (const name of [
       'ERROR - DUPLICATE ART START DATES',
       'ERROR - ENCOUNTER WITHOUT ADD PAST VISIT',
       'ERROR - PHARMACY FORMS WITHOUT DURATION',
       'ERROR - PHARMACY FORM WITHOUT REGIMEN LINE OR REGIMEN',
+      'HI - Fingerprint Statistics',
     ]) {
       expect(EXCLUDED_REPORT_NAMES).not.toContain(name);
     }
     expect(EXCLUDED_REPORT_NAMES).toContain('ERROR - INCOMPLETE VIRAL LOAD DATA');
     expect(EXCLUDED_REPORT_NAMES).toContain('Biometric Line List');
-    expect(EXCLUDED_REPORT_NAMES).toContain('HI - Fingerprint Statistics');
+  });
+
+  it('preserves fingerprint statistics identity and leaves its source definition untouched', () => {
+    const fingerprintReport = createReportDefinition(
+      'HI - Fingerprint Statistics',
+      '6001512e-8cd3-4f5c-9c86-02f9989effb1',
+    );
+    const definitions = [createReportDefinition('Biometric Line List', 'still-hidden'), fingerprintReport];
+
+    expect(filterAndSortReportDefinitions(definitions)).toEqual([fingerprintReport]);
+    expect(definitions).toHaveLength(2);
+    expect(definitions[1]).toBe(fingerprintReport);
   });
 });
