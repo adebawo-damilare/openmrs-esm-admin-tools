@@ -21,8 +21,6 @@ export const EXCLUDED_REPORT_NAMES = [
   'Drug Consumption By Date',
   'Drug Consumption By Month',
   'ERegister',
-  'ERROR - DUPLICATE ART START DATES',
-  'ERROR - ENCOUNTER WITHOUT ADD PAST VISIT',
   'ERROR - INCOMPLETE VIRAL LOAD DATA',
   'EXITS',
   'Facility Lab Report',
