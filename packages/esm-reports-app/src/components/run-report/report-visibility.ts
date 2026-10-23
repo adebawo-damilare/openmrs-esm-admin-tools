@@ -36,7 +36,6 @@ export const EXCLUDED_REPORT_NAMES = [
   'List of Users',
   'Lost to FollowUp',
   'Maternal Cohort',
-  'MISSED APPOINTMENT',
   'NCD Report',
   'Number of All Admissions',
   'Number of All Discharges',

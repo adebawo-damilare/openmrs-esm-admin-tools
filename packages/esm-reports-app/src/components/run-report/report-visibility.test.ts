@@ -82,14 +82,15 @@ describe('filterAndSortReportDefinitions', () => {
       'ERROR - PHARMACY FORMS WITHOUT DURATION',
       'HI - Fingerprint Statistics',
       'HTS EXPORT',
+      'MISSED APPOINTMENT',
       'SCHEDULED APPOINTMENT',
       'Transit Client Linelist',
     ]);
     expect(definitions[3].name).toBe('ARTLinelist Report');
   });
 
-  it('removes only the seven reviewed names while retaining the other gates', () => {
-    expect(EXCLUDED_REPORT_NAMES).toHaveLength(58);
+  it('removes only the eight reviewed names while retaining the other gates', () => {
+    expect(EXCLUDED_REPORT_NAMES).toHaveLength(57);
     for (const name of [
       'ERROR - DUPLICATE ART START DATES',
       'ERROR - ENCOUNTER WITHOUT ADD PAST VISIT',
@@ -98,11 +99,11 @@ describe('filterAndSortReportDefinitions', () => {
       'HI - Fingerprint Statistics',
       'Biometric Line List',
       'SCHEDULED APPOINTMENT',
+      'MISSED APPOINTMENT',
     ]) {
       expect(EXCLUDED_REPORT_NAMES).not.toContain(name);
     }
     expect(EXCLUDED_REPORT_NAMES).toContain('ERROR - INCOMPLETE VIRAL LOAD DATA');
-    expect(EXCLUDED_REPORT_NAMES).toContain('MISSED APPOINTMENT');
   });
 
   it('preserves fingerprint statistics identity and leaves its source definition untouched', () => {
@@ -129,15 +130,23 @@ describe('filterAndSortReportDefinitions', () => {
     expect(definitions[0]).toBe(biometricReport);
   });
 
-  it('shows scheduled appointments with stable identity while keeping missed appointments gated', () => {
+  it('shows both reviewed appointment reports with stable identities and alphabetical ordering', () => {
     const scheduled = createReportDefinition('SCHEDULED APPOINTMENT', '2bcc0d06-8120-4d85-99a7-530675b080e6');
-    const definitions = [
-      scheduled,
-      createReportDefinition('MISSED APPOINTMENT', '319982d1-68dd-45f6-a0ef-ef1dc4e883dd'),
-    ];
+    const missed = createReportDefinition('MISSED APPOINTMENT', '319982d1-68dd-45f6-a0ef-ef1dc4e883dd');
+    const definitions = [scheduled, missed];
 
-    expect(filterAndSortReportDefinitions(definitions)).toEqual([scheduled]);
+    expect(filterAndSortReportDefinitions(definitions)).toEqual([missed, scheduled]);
     expect(definitions).toHaveLength(2);
     expect(definitions[0]).toBe(scheduled);
+    expect(definitions[1]).toBe(missed);
+  });
+
+  it('shows reviewed missed appointments without exposing the incomplete viral-load backlog', () => {
+    const missed = createReportDefinition('MISSED APPOINTMENT', '319982d1-68dd-45f6-a0ef-ef1dc4e883dd');
+    const definitions = [createReportDefinition('ERROR - INCOMPLETE VIRAL LOAD DATA', 'backlog'), missed];
+
+    expect(filterAndSortReportDefinitions(definitions)).toEqual([missed]);
+    expect(definitions[1]).toBe(missed);
+    expect(definitions).toHaveLength(2);
   });
 });
