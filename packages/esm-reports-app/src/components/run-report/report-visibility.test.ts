@@ -66,13 +66,14 @@ describe('filterAndSortReportDefinitions', () => {
       createReportDefinition('ERROR - INCOMPLETE VIRAL LOAD DATA', 'not-yet-reviewed'),
       createReportDefinition('ERROR - ENCOUNTER WITHOUT ADD PAST VISIT', '64b6148d-12b9-46df-bdba-896ae7504ae5'),
       createReportDefinition('ERROR - DUPLICATE ART START DATES', '5c4758bf-b1be-45ca-8924-daddc3963b24'),
-      createReportDefinition('Biometric Line List', 'biometric-not-yet-reviewed'),
+      createReportDefinition('Biometric Line List', '95dee752-096e-441c-be3e-6141f33d8082'),
       createReportDefinition('HI - Fingerprint Statistics', '6001512e-8cd3-4f5c-9c86-02f9989effb1'),
       createReportDefinition('ART Linelist', LEGACY_ART_LINELIST_REPORT_UUID),
     ];
 
     expect(filterAndSortReportDefinitions(definitions).map(({ name }) => name)).toEqual([
       'ART Linelist',
+      'Biometric Line List',
       'ERROR - DUPLICATE ART START DATES',
       'ERROR - ENCOUNTER WITHOUT ADD PAST VISIT',
       'ERROR - PHARMACY FORM WITHOUT REGIMEN LINE OR REGIMEN',
@@ -84,19 +85,19 @@ describe('filterAndSortReportDefinitions', () => {
     expect(definitions[3].name).toBe('ARTLinelist Report');
   });
 
-  it('removes only the five reviewed names while retaining the other gates', () => {
-    expect(EXCLUDED_REPORT_NAMES).toHaveLength(60);
+  it('removes only the six reviewed names while retaining the other gates', () => {
+    expect(EXCLUDED_REPORT_NAMES).toHaveLength(59);
     for (const name of [
       'ERROR - DUPLICATE ART START DATES',
       'ERROR - ENCOUNTER WITHOUT ADD PAST VISIT',
       'ERROR - PHARMACY FORMS WITHOUT DURATION',
       'ERROR - PHARMACY FORM WITHOUT REGIMEN LINE OR REGIMEN',
       'HI - Fingerprint Statistics',
+      'Biometric Line List',
     ]) {
       expect(EXCLUDED_REPORT_NAMES).not.toContain(name);
     }
     expect(EXCLUDED_REPORT_NAMES).toContain('ERROR - INCOMPLETE VIRAL LOAD DATA');
-    expect(EXCLUDED_REPORT_NAMES).toContain('Biometric Line List');
   });
 
   it('preserves fingerprint statistics identity and leaves its source definition untouched', () => {
@@ -104,10 +105,22 @@ describe('filterAndSortReportDefinitions', () => {
       'HI - Fingerprint Statistics',
       '6001512e-8cd3-4f5c-9c86-02f9989effb1',
     );
-    const definitions = [createReportDefinition('Biometric Line List', 'still-hidden'), fingerprintReport];
+    const definitions = [
+      createReportDefinition('ERROR - INCOMPLETE VIRAL LOAD DATA', 'still-hidden'),
+      fingerprintReport,
+    ];
 
     expect(filterAndSortReportDefinitions(definitions)).toEqual([fingerprintReport]);
     expect(definitions).toHaveLength(2);
     expect(definitions[1]).toBe(fingerprintReport);
+  });
+
+  it('shows the reviewed biometric report without mutating its identity or exposing the viral-load backlog', () => {
+    const biometricReport = createReportDefinition('Biometric Line List', '95dee752-096e-441c-be3e-6141f33d8082');
+    const definitions = [biometricReport, createReportDefinition('ERROR - INCOMPLETE VIRAL LOAD DATA', 'backlog')];
+
+    expect(filterAndSortReportDefinitions(definitions)).toEqual([biometricReport]);
+    expect(definitions).toHaveLength(2);
+    expect(definitions[0]).toBe(biometricReport);
   });
 });

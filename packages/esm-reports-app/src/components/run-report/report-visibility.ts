@@ -9,7 +9,6 @@ export const EXCLUDED_REPORT_UUIDS = [LEGACY_ART_LINELIST_REPORT_UUID, SI_RADET_
 export const EXCLUDED_REPORT_NAMES = [
   'Active Patient By Regimen',
   'AHD Line List',
-  'Biometric Line List',
   'Child Birth Registration',
   'Child Follow Up Report',
   'CLINIC VISIT',
