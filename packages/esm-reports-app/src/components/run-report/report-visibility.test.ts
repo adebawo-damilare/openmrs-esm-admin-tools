@@ -70,10 +70,12 @@ describe('filterAndSortReportDefinitions', () => {
       createReportDefinition('HI - Fingerprint Statistics', '6001512e-8cd3-4f5c-9c86-02f9989effb1'),
       createReportDefinition('SCHEDULED APPOINTMENT', '2bcc0d06-8120-4d85-99a7-530675b080e6'),
       createReportDefinition('MISSED APPOINTMENT', '319982d1-68dd-45f6-a0ef-ef1dc4e883dd'),
+      createReportDefinition('Active Patient By Regimen', '2a1fc43b-fdb9-478b-a8fd-2b0c00e2e1de'),
       createReportDefinition('ART Linelist', LEGACY_ART_LINELIST_REPORT_UUID),
     ];
 
     expect(filterAndSortReportDefinitions(definitions).map(({ name }) => name)).toEqual([
+      'Active Patient By Regimen',
       'ART Linelist',
       'Biometric Line List',
       'ERROR - DUPLICATE ART START DATES',
@@ -89,8 +91,8 @@ describe('filterAndSortReportDefinitions', () => {
     expect(definitions[3].name).toBe('ARTLinelist Report');
   });
 
-  it('removes only the eight reviewed names while retaining the other gates', () => {
-    expect(EXCLUDED_REPORT_NAMES).toHaveLength(57);
+  it('removes only the nine reviewed names while retaining the other gates', () => {
+    expect(EXCLUDED_REPORT_NAMES).toHaveLength(56);
     for (const name of [
       'ERROR - DUPLICATE ART START DATES',
       'ERROR - ENCOUNTER WITHOUT ADD PAST VISIT',
@@ -100,6 +102,7 @@ describe('filterAndSortReportDefinitions', () => {
       'Biometric Line List',
       'SCHEDULED APPOINTMENT',
       'MISSED APPOINTMENT',
+      'Active Patient By Regimen',
     ]) {
       expect(EXCLUDED_REPORT_NAMES).not.toContain(name);
     }
@@ -148,5 +151,19 @@ describe('filterAndSortReportDefinitions', () => {
     expect(filterAndSortReportDefinitions(definitions)).toEqual([missed]);
     expect(definitions[1]).toBe(missed);
     expect(definitions).toHaveLength(2);
+  });
+
+  it('shows the reviewed active-regimen snapshot without exposing the other regimen reports or mutating identity', () => {
+    const active = createReportDefinition('Active Patient By Regimen', '2a1fc43b-fdb9-478b-a8fd-2b0c00e2e1de');
+    const definitions = [
+      createReportDefinition('Regimen Analysis by TXNEW', 'txnew-backlog'),
+      createReportDefinition('Pediatric Regimen Analysis By Weight', 'pediatric-backlog'),
+      createReportDefinition('ERROR - INCOMPLETE VIRAL LOAD DATA', 'viral-backlog'),
+      active,
+    ];
+
+    expect(filterAndSortReportDefinitions(definitions)).toEqual([active]);
+    expect(definitions[3]).toBe(active);
+    expect(definitions).toHaveLength(4);
   });
 });
