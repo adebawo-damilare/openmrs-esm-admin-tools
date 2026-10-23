@@ -56,7 +56,6 @@ export const EXCLUDED_REPORT_NAMES = [
   'PVLS Report',
   'Regimen Analysis by TXNEW',
   'Report Collins',
-  'SCHEDULED APPOINTMENT',
   'SI - RADET',
   'Simple row per patient report',
   'test_0',

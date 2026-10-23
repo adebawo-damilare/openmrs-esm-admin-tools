@@ -68,6 +68,8 @@ describe('filterAndSortReportDefinitions', () => {
       createReportDefinition('ERROR - DUPLICATE ART START DATES', '5c4758bf-b1be-45ca-8924-daddc3963b24'),
       createReportDefinition('Biometric Line List', '95dee752-096e-441c-be3e-6141f33d8082'),
       createReportDefinition('HI - Fingerprint Statistics', '6001512e-8cd3-4f5c-9c86-02f9989effb1'),
+      createReportDefinition('SCHEDULED APPOINTMENT', '2bcc0d06-8120-4d85-99a7-530675b080e6'),
+      createReportDefinition('MISSED APPOINTMENT', '319982d1-68dd-45f6-a0ef-ef1dc4e883dd'),
       createReportDefinition('ART Linelist', LEGACY_ART_LINELIST_REPORT_UUID),
     ];
 
@@ -80,13 +82,14 @@ describe('filterAndSortReportDefinitions', () => {
       'ERROR - PHARMACY FORMS WITHOUT DURATION',
       'HI - Fingerprint Statistics',
       'HTS EXPORT',
+      'SCHEDULED APPOINTMENT',
       'Transit Client Linelist',
     ]);
     expect(definitions[3].name).toBe('ARTLinelist Report');
   });
 
-  it('removes only the six reviewed names while retaining the other gates', () => {
-    expect(EXCLUDED_REPORT_NAMES).toHaveLength(59);
+  it('removes only the seven reviewed names while retaining the other gates', () => {
+    expect(EXCLUDED_REPORT_NAMES).toHaveLength(58);
     for (const name of [
       'ERROR - DUPLICATE ART START DATES',
       'ERROR - ENCOUNTER WITHOUT ADD PAST VISIT',
@@ -94,10 +97,12 @@ describe('filterAndSortReportDefinitions', () => {
       'ERROR - PHARMACY FORM WITHOUT REGIMEN LINE OR REGIMEN',
       'HI - Fingerprint Statistics',
       'Biometric Line List',
+      'SCHEDULED APPOINTMENT',
     ]) {
       expect(EXCLUDED_REPORT_NAMES).not.toContain(name);
     }
     expect(EXCLUDED_REPORT_NAMES).toContain('ERROR - INCOMPLETE VIRAL LOAD DATA');
+    expect(EXCLUDED_REPORT_NAMES).toContain('MISSED APPOINTMENT');
   });
 
   it('preserves fingerprint statistics identity and leaves its source definition untouched', () => {
@@ -122,5 +127,17 @@ describe('filterAndSortReportDefinitions', () => {
     expect(filterAndSortReportDefinitions(definitions)).toEqual([biometricReport]);
     expect(definitions).toHaveLength(2);
     expect(definitions[0]).toBe(biometricReport);
+  });
+
+  it('shows scheduled appointments with stable identity while keeping missed appointments gated', () => {
+    const scheduled = createReportDefinition('SCHEDULED APPOINTMENT', '2bcc0d06-8120-4d85-99a7-530675b080e6');
+    const definitions = [
+      scheduled,
+      createReportDefinition('MISSED APPOINTMENT', '319982d1-68dd-45f6-a0ef-ef1dc4e883dd'),
+    ];
+
+    expect(filterAndSortReportDefinitions(definitions)).toEqual([scheduled]);
+    expect(definitions).toHaveLength(2);
+    expect(definitions[0]).toBe(scheduled);
   });
 });
