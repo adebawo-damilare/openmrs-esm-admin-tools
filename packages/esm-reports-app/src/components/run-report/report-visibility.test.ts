@@ -95,8 +95,8 @@ describe('filterAndSortReportDefinitions', () => {
     expect(definitions[3].name).toBe('ARTLinelist Report');
   });
 
-  it('removes only the eleven reviewed names while retaining the other gates', () => {
-    expect(EXCLUDED_REPORT_NAMES).toHaveLength(54);
+  it('removes only the fourteen reviewed names while retaining the other gates', () => {
+    expect(EXCLUDED_REPORT_NAMES).toHaveLength(51);
     for (const name of [
       'ERROR - DUPLICATE ART START DATES',
       'ERROR - ENCOUNTER WITHOUT ADD PAST VISIT',
@@ -109,6 +109,9 @@ describe('filterAndSortReportDefinitions', () => {
       'Active Patient By Regimen',
       'Pediatric Regimen Analysis By Weight',
       'Regimen Analysis by TXNEW',
+      'PHARMACY - DRUG EXPORT',
+      'Drug Consumption By Date',
+      'Drug Consumption By Month',
     ]) {
       expect(EXCLUDED_REPORT_NAMES).not.toContain(name);
     }
@@ -202,5 +205,37 @@ describe('filterAndSortReportDefinitions', () => {
     expect(filterAndSortReportDefinitions(definitions)).toEqual([txnew]);
     expect(definitions[1]).toBe(txnew);
     expect(definitions).toHaveLength(3);
+  });
+
+  it('shows the three reviewed pharmacy reports in alphabetical order without mutating their identities', () => {
+    const drugExport = createReportDefinition('PHARMACY - DRUG EXPORT', 'd39509bc-4881-11e7-a919-92ebcb67fe33');
+    const daily = createReportDefinition('Drug Consumption By Date', 'd2900ea3-0bb0-42df-9aa7-f04a910977b4');
+    const monthly = createReportDefinition('Drug Consumption By Month', '4a9a49af-9c4e-42ae-8e9c-0727cf104a92');
+    const definitions = [drugExport, monthly, daily];
+
+    expect(filterAndSortReportDefinitions(definitions)).toEqual([daily, monthly, drugExport]);
+    expect(definitions).toEqual([drugExport, monthly, daily]);
+    expect(definitions[0]).toBe(drugExport);
+  });
+
+  it('keeps unreviewed drug-adjacent reports and duplicate ART UUIDs hidden alongside pharmacy exports', () => {
+    const drugExport = createReportDefinition('PHARMACY - DRUG EXPORT', 'd39509bc-4881-11e7-a919-92ebcb67fe33');
+    const definitions = [
+      createReportDefinition('ERROR - INCOMPLETE VIRAL LOAD DATA', 'viral-backlog'),
+      createReportDefinition('Tx_NEW', 'separate-txnew'),
+      createReportDefinition('ART Linelist', LEGACY_ART_LINELIST_REPORT_UUID),
+      createReportDefinition('ART - LINELIST', SI_RADET_REPORT_UUID),
+      drugExport,
+    ];
+
+    expect(filterAndSortReportDefinitions(definitions)).toEqual([drugExport]);
+    expect(definitions).toHaveLength(5);
+  });
+
+  it('accepts trailing-space pharmacy names without changing the API objects', () => {
+    const daily = createReportDefinition('Drug Consumption By Date ', 'd2900ea3-0bb0-42df-9aa7-f04a910977b4');
+
+    expect(filterAndSortReportDefinitions([daily])).toEqual([daily]);
+    expect(daily.name).toBe('Drug Consumption By Date ');
   });
 });
