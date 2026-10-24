@@ -51,7 +51,6 @@ export const EXCLUDED_REPORT_NAMES = [
   'PMTCT_Number of new ANC Clients',
   'PMTCT_Number of new ANC Clients tested for syphilis',
   'PVLS Report',
-  'Regimen Analysis by TXNEW',
   'Report Collins',
   'SI - RADET',
   'Simple row per patient report',
