@@ -7,7 +7,6 @@ export const EXCLUDED_REPORT_UUIDS = [LEGACY_ART_LINELIST_REPORT_UUID, SI_RADET_
 
 // Remove a report name from this array when it is ready to appear in the Run report list.
 export const EXCLUDED_REPORT_NAMES = [
-  'AHD Line List',
   'Child Birth Registration',
   'Child Follow Up Report',
   'CLINIC VISIT',
@@ -42,7 +41,6 @@ export const EXCLUDED_REPORT_NAMES = [
   'Number of Transfers',
   'Number of Visit Notes',
   'Number of Visits',
-  'OTZ Line List',
   'Patient Ever Enrolled',
   'Patient Line Listing',
   'PMTCT_Number of new ANC Clients',

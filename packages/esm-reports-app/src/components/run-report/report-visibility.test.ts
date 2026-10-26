@@ -95,8 +95,8 @@ describe('filterAndSortReportDefinitions', () => {
     expect(definitions[3].name).toBe('ARTLinelist Report');
   });
 
-  it('removes only the fourteen reviewed names while retaining the other gates', () => {
-    expect(EXCLUDED_REPORT_NAMES).toHaveLength(51);
+  it('removes only the sixteen reviewed names while retaining the other gates', () => {
+    expect(EXCLUDED_REPORT_NAMES).toHaveLength(49);
     for (const name of [
       'ERROR - DUPLICATE ART START DATES',
       'ERROR - ENCOUNTER WITHOUT ADD PAST VISIT',
@@ -112,10 +112,26 @@ describe('filterAndSortReportDefinitions', () => {
       'PHARMACY - DRUG EXPORT',
       'Drug Consumption By Date',
       'Drug Consumption By Month',
+      'OTZ Line List',
+      'AHD Line List',
     ]) {
       expect(EXCLUDED_REPORT_NAMES).not.toContain(name);
     }
     expect(EXCLUDED_REPORT_NAMES).toContain('ERROR - INCOMPLETE VIRAL LOAD DATA');
+  });
+
+  it('shows reviewed OTZ and AHD linelists while keeping unrelated reports gated', () => {
+    const definitions = [
+      createReportDefinition('OTZ Line List', 'cbc1c600-0535-4158-9101-c31ffb4a5ead'),
+      createReportDefinition('AHD Line List', '714d99ef-7c4d-4b50-8e92-5fc00e8b0ab5'),
+      createReportDefinition('Tx_NEW', 'still-hidden'),
+      createReportDefinition('ART - LINELIST', SI_RADET_REPORT_UUID),
+    ];
+
+    expect(filterAndSortReportDefinitions(definitions).map(({ name }) => name)).toEqual([
+      'AHD Line List',
+      'OTZ Line List',
+    ]);
   });
 
   it('preserves fingerprint statistics identity and leaves its source definition untouched', () => {
