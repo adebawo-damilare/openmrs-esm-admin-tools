@@ -95,8 +95,8 @@ describe('filterAndSortReportDefinitions', () => {
     expect(definitions[3].name).toBe('ARTLinelist Report');
   });
 
-  it('removes only the twenty reviewed names while retaining the other gates', () => {
-    expect(EXCLUDED_REPORT_NAMES).toHaveLength(45);
+  it('removes only the twenty-one reviewed names while retaining the other gates', () => {
+    expect(EXCLUDED_REPORT_NAMES).toHaveLength(44);
     for (const name of [
       'ERROR - DUPLICATE ART START DATES',
       'ERROR - ENCOUNTER WITHOUT ADD PAST VISIT',
@@ -118,6 +118,7 @@ describe('filterAndSortReportDefinitions', () => {
       'Viral Load Eligibility 2.0',
       'Patient Ever Enrolled',
       'Tx_NEW',
+      'NCD Report',
     ]) {
       expect(EXCLUDED_REPORT_NAMES).not.toContain(name);
     }
@@ -275,6 +276,19 @@ describe('filterAndSortReportDefinitions', () => {
     expect(filterAndSortReportDefinitions(definitions)).toEqual([ever, txnew]);
     expect(definitions[0]).toBe(txnew);
     expect(ever.name).toBe('Patient Ever Enrolled ');
+  });
+
+  it('shows the reviewed NCD report while retaining unrelated exclusions and object identity', () => {
+    const ncd = createReportDefinition('NCD Report ', '827ece1f-98f9-4d58-9a0a-9a013f41cb25');
+    const definitions = [
+      createReportDefinition('CLINIC VISIT', 'unreviewed'),
+      ncd,
+      createReportDefinition('ERROR - INCOMPLETE VIRAL LOAD DATA', 'deferred'),
+    ];
+
+    expect(filterAndSortReportDefinitions(definitions)).toEqual([ncd]);
+    expect(definitions[1]).toBe(ncd);
+    expect(ncd.name).toBe('NCD Report ');
   });
 
   it('accepts trailing-space pharmacy names without changing the API objects', () => {
