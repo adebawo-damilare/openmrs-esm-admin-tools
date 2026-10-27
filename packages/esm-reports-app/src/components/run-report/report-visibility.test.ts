@@ -15,6 +15,52 @@ const createReportDefinition = (name: string, uuid: string): ReportDefinition =>
 });
 
 describe('filterAndSortReportDefinitions', () => {
+  it('shows all 25 reviewed NMRS 1.1.13 reports together while retaining every remaining exclusion', () => {
+    const expectedNames = [
+      'Active Patient By Regimen',
+      'AHD Line List',
+      'ART Linelist',
+      'Biometric Line List',
+      'CLINIC VISIT',
+      'Drug Consumption By Date',
+      'Drug Consumption By Month',
+      'ERROR - DUPLICATE ART START DATES',
+      'ERROR - ENCOUNTER WITHOUT ADD PAST VISIT',
+      'ERROR - PHARMACY FORM WITHOUT REGIMEN LINE OR REGIMEN',
+      'ERROR - PHARMACY FORMS WITHOUT DURATION',
+      'HI - Fingerprint Statistics',
+      'HTS EXPORT',
+      'LAB - Viral Loads',
+      'MISSED APPOINTMENT',
+      'NCD Report',
+      'OTZ Line List',
+      'Patient Ever Enrolled',
+      'Pediatric Regimen Analysis By Weight',
+      'PHARMACY - DRUG EXPORT',
+      'Regimen Analysis by TXNEW',
+      'SCHEDULED APPOINTMENT',
+      'Transit Client Linelist',
+      'Tx_NEW',
+      'Viral Load Eligibility 2.0',
+    ];
+    const visible = expectedNames.map((name, index) =>
+      createReportDefinition(
+        name === 'ART Linelist' ? 'ARTLinelist Report' : name,
+        name === 'ART Linelist' ? CANONICAL_ART_LINELIST_REPORT_UUID : `reviewed-report-${index}`,
+      ),
+    );
+    const definitions = [
+      ...visible.slice().reverse(),
+      ...EXCLUDED_REPORT_NAMES.map((name, index) => createReportDefinition(name, `hidden-report-${index}`)),
+      createReportDefinition('ART Linelist', LEGACY_ART_LINELIST_REPORT_UUID),
+      createReportDefinition('ART - LINELIST', SI_RADET_REPORT_UUID),
+    ];
+    const originalDefinitions = definitions.map((definition) => ({ ...definition }));
+
+    expect(filterAndSortReportDefinitions(definitions).map(({ name }) => name)).toEqual(expectedNames);
+    expect(definitions).toEqual(originalDefinitions);
+  });
+
   it('excludes hidden reports and sorts the visible reports alphabetically', () => {
     const reportDefinitions = [
       ...EXCLUDED_REPORT_NAMES.map((name, index) => createReportDefinition(name, `excluded-report-${index}`)),
