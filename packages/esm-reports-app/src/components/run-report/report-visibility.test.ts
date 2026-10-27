@@ -95,8 +95,8 @@ describe('filterAndSortReportDefinitions', () => {
     expect(definitions[3].name).toBe('ARTLinelist Report');
   });
 
-  it('removes only the eighteen reviewed names while retaining the other gates', () => {
-    expect(EXCLUDED_REPORT_NAMES).toHaveLength(47);
+  it('removes only the twenty reviewed names while retaining the other gates', () => {
+    expect(EXCLUDED_REPORT_NAMES).toHaveLength(45);
     for (const name of [
       'ERROR - DUPLICATE ART START DATES',
       'ERROR - ENCOUNTER WITHOUT ADD PAST VISIT',
@@ -116,6 +116,8 @@ describe('filterAndSortReportDefinitions', () => {
       'AHD Line List',
       'LAB - Viral Loads',
       'Viral Load Eligibility 2.0',
+      'Patient Ever Enrolled',
+      'Tx_NEW',
     ]) {
       expect(EXCLUDED_REPORT_NAMES).not.toContain(name);
     }
@@ -126,7 +128,7 @@ describe('filterAndSortReportDefinitions', () => {
     const definitions = [
       createReportDefinition('OTZ Line List', 'cbc1c600-0535-4158-9101-c31ffb4a5ead'),
       createReportDefinition('AHD Line List', '714d99ef-7c4d-4b50-8e92-5fc00e8b0ab5'),
-      createReportDefinition('Tx_NEW', 'still-hidden'),
+      createReportDefinition('CLINIC VISIT', 'still-hidden'),
       createReportDefinition('ART - LINELIST', SI_RADET_REPORT_UUID),
     ];
 
@@ -194,10 +196,10 @@ describe('filterAndSortReportDefinitions', () => {
     expect(definitions).toHaveLength(2);
   });
 
-  it('shows the reviewed active-regimen snapshot without exposing the unreviewed Tx_NEW linelist or mutating identity', () => {
+  it('shows the reviewed active-regimen snapshot without exposing the unreviewed clinic report or mutating identity', () => {
     const active = createReportDefinition('Active Patient By Regimen', '2a1fc43b-fdb9-478b-a8fd-2b0c00e2e1de');
     const definitions = [
-      createReportDefinition('Tx_NEW', 'txnew-linelist-backlog'),
+      createReportDefinition('CLINIC VISIT', 'clinic-backlog'),
       createReportDefinition('ERROR - INCOMPLETE VIRAL LOAD DATA', 'viral-backlog'),
       active,
     ];
@@ -215,7 +217,7 @@ describe('filterAndSortReportDefinitions', () => {
     const active = createReportDefinition('Active Patient By Regimen', '2a1fc43b-fdb9-478b-a8fd-2b0c00e2e1de');
     const definitions = [
       pediatric,
-      createReportDefinition('Tx_NEW', 'txnew-linelist-backlog'),
+      createReportDefinition('CLINIC VISIT', 'clinic-backlog'),
       createReportDefinition('ERROR - INCOMPLETE VIRAL LOAD DATA', 'viral-backlog'),
       active,
     ];
@@ -226,15 +228,16 @@ describe('filterAndSortReportDefinitions', () => {
     expect(definitions).toHaveLength(4);
   });
 
-  it('shows the reviewed TXNEW regimen summary without exposing the separate Tx_NEW linelist or viral-load backlog', () => {
+  it('shows both reviewed TXNEW reports as distinct definitions without exposing the viral-load backlog', () => {
     const txnew = createReportDefinition('Regimen Analysis by TXNEW', 'dd8f326d-bc8a-4808-94fd-c82f1e5f598a');
+    const linelist = createReportDefinition('Tx_NEW', 'a8fb8071-79c0-4bfc-982d-2a2a1b6b8db1');
     const definitions = [
-      createReportDefinition('Tx_NEW', 'separate-linelist'),
+      linelist,
       txnew,
       createReportDefinition('ERROR - INCOMPLETE VIRAL LOAD DATA', 'viral-backlog'),
     ];
 
-    expect(filterAndSortReportDefinitions(definitions)).toEqual([txnew]);
+    expect(filterAndSortReportDefinitions(definitions)).toEqual([txnew, linelist]);
     expect(definitions[1]).toBe(txnew);
     expect(definitions).toHaveLength(3);
   });
@@ -254,7 +257,7 @@ describe('filterAndSortReportDefinitions', () => {
     const drugExport = createReportDefinition('PHARMACY - DRUG EXPORT', 'd39509bc-4881-11e7-a919-92ebcb67fe33');
     const definitions = [
       createReportDefinition('ERROR - INCOMPLETE VIRAL LOAD DATA', 'viral-backlog'),
-      createReportDefinition('Tx_NEW', 'separate-txnew'),
+      createReportDefinition('CLINIC VISIT', 'clinic-backlog'),
       createReportDefinition('ART Linelist', LEGACY_ART_LINELIST_REPORT_UUID),
       createReportDefinition('ART - LINELIST', SI_RADET_REPORT_UUID),
       drugExport,
@@ -262,6 +265,16 @@ describe('filterAndSortReportDefinitions', () => {
 
     expect(filterAndSortReportDefinitions(definitions)).toEqual([drugExport]);
     expect(definitions).toHaveLength(5);
+  });
+
+  it('shows reviewed HIV enrollment and TXNEW linelists without mutating identities or opening remaining gates', () => {
+    const ever = createReportDefinition('Patient Ever Enrolled ', '767e60b7-5671-4d0d-850e-934a1b48474a');
+    const txnew = createReportDefinition('Tx_NEW', 'a8fb8071-79c0-4bfc-982d-2a2a1b6b8db1');
+    const definitions = [txnew, createReportDefinition('CLINIC VISIT', 'unreviewed'), ever];
+
+    expect(filterAndSortReportDefinitions(definitions)).toEqual([ever, txnew]);
+    expect(definitions[0]).toBe(txnew);
+    expect(ever.name).toBe('Patient Ever Enrolled ');
   });
 
   it('accepts trailing-space pharmacy names without changing the API objects', () => {
