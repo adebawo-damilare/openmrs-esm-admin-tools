@@ -9,7 +9,6 @@ export const EXCLUDED_REPORT_UUIDS = [LEGACY_ART_LINELIST_REPORT_UUID, SI_RADET_
 export const EXCLUDED_REPORT_NAMES = [
   'Child Birth Registration',
   'Child Follow Up Report',
-  'CLINIC VISIT',
   'Combined ART Indicators for Monthly & Periodic Reports',
   'Combined HTS Indicators for Monthly & Periodic Reports',
   'Combined PMTCT Indicators for Monthly & Periodic Reports',

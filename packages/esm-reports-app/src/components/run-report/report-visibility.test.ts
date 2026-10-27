@@ -95,8 +95,8 @@ describe('filterAndSortReportDefinitions', () => {
     expect(definitions[3].name).toBe('ARTLinelist Report');
   });
 
-  it('removes only the twenty-one reviewed names while retaining the other gates', () => {
-    expect(EXCLUDED_REPORT_NAMES).toHaveLength(44);
+  it('removes only the twenty-two reviewed names while retaining the other gates', () => {
+    expect(EXCLUDED_REPORT_NAMES).toHaveLength(43);
     for (const name of [
       'ERROR - DUPLICATE ART START DATES',
       'ERROR - ENCOUNTER WITHOUT ADD PAST VISIT',
@@ -119,6 +119,7 @@ describe('filterAndSortReportDefinitions', () => {
       'Patient Ever Enrolled',
       'Tx_NEW',
       'NCD Report',
+      'CLINIC VISIT',
     ]) {
       expect(EXCLUDED_REPORT_NAMES).not.toContain(name);
     }
@@ -129,7 +130,7 @@ describe('filterAndSortReportDefinitions', () => {
     const definitions = [
       createReportDefinition('OTZ Line List', 'cbc1c600-0535-4158-9101-c31ffb4a5ead'),
       createReportDefinition('AHD Line List', '714d99ef-7c4d-4b50-8e92-5fc00e8b0ab5'),
-      createReportDefinition('CLINIC VISIT', 'still-hidden'),
+      createReportDefinition('CTD-Linelist', 'still-hidden'),
       createReportDefinition('ART - LINELIST', SI_RADET_REPORT_UUID),
     ];
 
@@ -197,10 +198,10 @@ describe('filterAndSortReportDefinitions', () => {
     expect(definitions).toHaveLength(2);
   });
 
-  it('shows the reviewed active-regimen snapshot without exposing the unreviewed clinic report or mutating identity', () => {
+  it('shows the reviewed active-regimen snapshot without exposing the unreviewed CTD report or mutating identity', () => {
     const active = createReportDefinition('Active Patient By Regimen', '2a1fc43b-fdb9-478b-a8fd-2b0c00e2e1de');
     const definitions = [
-      createReportDefinition('CLINIC VISIT', 'clinic-backlog'),
+      createReportDefinition('CTD-Linelist', 'ctd-backlog'),
       createReportDefinition('ERROR - INCOMPLETE VIRAL LOAD DATA', 'viral-backlog'),
       active,
     ];
@@ -218,7 +219,7 @@ describe('filterAndSortReportDefinitions', () => {
     const active = createReportDefinition('Active Patient By Regimen', '2a1fc43b-fdb9-478b-a8fd-2b0c00e2e1de');
     const definitions = [
       pediatric,
-      createReportDefinition('CLINIC VISIT', 'clinic-backlog'),
+      createReportDefinition('CTD-Linelist', 'ctd-backlog'),
       createReportDefinition('ERROR - INCOMPLETE VIRAL LOAD DATA', 'viral-backlog'),
       active,
     ];
@@ -258,7 +259,7 @@ describe('filterAndSortReportDefinitions', () => {
     const drugExport = createReportDefinition('PHARMACY - DRUG EXPORT', 'd39509bc-4881-11e7-a919-92ebcb67fe33');
     const definitions = [
       createReportDefinition('ERROR - INCOMPLETE VIRAL LOAD DATA', 'viral-backlog'),
-      createReportDefinition('CLINIC VISIT', 'clinic-backlog'),
+      createReportDefinition('CTD-Linelist', 'ctd-backlog'),
       createReportDefinition('ART Linelist', LEGACY_ART_LINELIST_REPORT_UUID),
       createReportDefinition('ART - LINELIST', SI_RADET_REPORT_UUID),
       drugExport,
@@ -271,7 +272,7 @@ describe('filterAndSortReportDefinitions', () => {
   it('shows reviewed HIV enrollment and TXNEW linelists without mutating identities or opening remaining gates', () => {
     const ever = createReportDefinition('Patient Ever Enrolled ', '767e60b7-5671-4d0d-850e-934a1b48474a');
     const txnew = createReportDefinition('Tx_NEW', 'a8fb8071-79c0-4bfc-982d-2a2a1b6b8db1');
-    const definitions = [txnew, createReportDefinition('CLINIC VISIT', 'unreviewed'), ever];
+    const definitions = [txnew, createReportDefinition('CTD-Linelist', 'unreviewed'), ever];
 
     expect(filterAndSortReportDefinitions(definitions)).toEqual([ever, txnew]);
     expect(definitions[0]).toBe(txnew);
@@ -281,7 +282,7 @@ describe('filterAndSortReportDefinitions', () => {
   it('shows the reviewed NCD report while retaining unrelated exclusions and object identity', () => {
     const ncd = createReportDefinition('NCD Report ', '827ece1f-98f9-4d58-9a0a-9a013f41cb25');
     const definitions = [
-      createReportDefinition('CLINIC VISIT', 'unreviewed'),
+      createReportDefinition('CTD-Linelist', 'unreviewed'),
       ncd,
       createReportDefinition('ERROR - INCOMPLETE VIRAL LOAD DATA', 'deferred'),
     ];
@@ -289,6 +290,15 @@ describe('filterAndSortReportDefinitions', () => {
     expect(filterAndSortReportDefinitions(definitions)).toEqual([ncd]);
     expect(definitions[1]).toBe(ncd);
     expect(ncd.name).toBe('NCD Report ');
+  });
+
+  it('shows reviewed CLINIC VISIT without mutating identity or exposing the unreviewed CTD report', () => {
+    const clinic = createReportDefinition('CLINIC VISIT ', '62d95963-bed4-41b3-ab15-0492d04b98d3');
+    const definitions = [createReportDefinition('CTD-Linelist', 'unreviewed'), clinic];
+
+    expect(filterAndSortReportDefinitions(definitions)).toEqual([clinic]);
+    expect(definitions[1]).toBe(clinic);
+    expect(clinic.name).toBe('CLINIC VISIT ');
   });
 
   it('accepts trailing-space pharmacy names without changing the API objects', () => {
