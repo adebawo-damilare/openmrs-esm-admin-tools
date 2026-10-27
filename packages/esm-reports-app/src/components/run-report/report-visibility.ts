@@ -23,7 +23,6 @@ export const EXCLUDED_REPORT_NAMES = [
   'GENERAL ANTENATAL EXPORT',
   'HTS_TST',
   'LAB - Lab Report',
-  'LAB - Viral Loads',
   'List of Diagnosis',
   'List of New Patient Registrations',
   'List of Patients affected by this Diagnosis',
@@ -55,7 +54,6 @@ export const EXCLUDED_REPORT_NAMES = [
   'VIRAL LOAD ELIGIBILITY REPORT',
   'VIRAL LOAD REPORT',
   'Viral Load Eligibility',
-  'Viral Load Eligibility 2.0',
 ] as const;
 
 const excludedReportNames = new Set<string>(EXCLUDED_REPORT_NAMES);

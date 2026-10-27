@@ -95,8 +95,8 @@ describe('filterAndSortReportDefinitions', () => {
     expect(definitions[3].name).toBe('ARTLinelist Report');
   });
 
-  it('removes only the sixteen reviewed names while retaining the other gates', () => {
-    expect(EXCLUDED_REPORT_NAMES).toHaveLength(49);
+  it('removes only the eighteen reviewed names while retaining the other gates', () => {
+    expect(EXCLUDED_REPORT_NAMES).toHaveLength(47);
     for (const name of [
       'ERROR - DUPLICATE ART START DATES',
       'ERROR - ENCOUNTER WITHOUT ADD PAST VISIT',
@@ -114,6 +114,8 @@ describe('filterAndSortReportDefinitions', () => {
       'Drug Consumption By Month',
       'OTZ Line List',
       'AHD Line List',
+      'LAB - Viral Loads',
+      'Viral Load Eligibility 2.0',
     ]) {
       expect(EXCLUDED_REPORT_NAMES).not.toContain(name);
     }
@@ -131,6 +133,20 @@ describe('filterAndSortReportDefinitions', () => {
     expect(filterAndSortReportDefinitions(definitions).map(({ name }) => name)).toEqual([
       'AHD Line List',
       'OTZ Line List',
+    ]);
+  });
+
+  it('shows the reviewed VL reports but keeps the unreviewed bare-name and audit definitions hidden', () => {
+    const definitions = [
+      createReportDefinition('LAB - Viral Loads', '3ae768dd-4acb-4ce3-b846-693e9dfeb285'),
+      createReportDefinition('Viral Load Eligibility 2.0', '9d363fa4-e132-4a39-962f-c9872e285172'),
+      createReportDefinition('Viral Load Eligibility', 'other-stored-definition'),
+      createReportDefinition('ERROR - INCOMPLETE VIRAL LOAD DATA', 'deferred-audit'),
+    ];
+
+    expect(filterAndSortReportDefinitions(definitions).map(({ name }) => name)).toEqual([
+      'LAB - Viral Loads',
+      'Viral Load Eligibility 2.0',
     ]);
   });
 
