@@ -37,6 +37,7 @@ const RunReportForm: React.FC<RunReportForm> = ({ closePanel }) => {
   const { categories } = useNmrsCategories();
   const { locations } = useLocations();
   const hasInvalidDateRange = !isReportDateRangeValid(reportParameters);
+  const hasSelectableFormat = reportDesigns?.some((design) => design.uuid === renderModeUuid) ?? false;
 
   const filteredReportDefinitions = useMemo(() => {
     let categoryReportDefinitions = reportDefinitions;
@@ -86,7 +87,7 @@ const RunReportForm: React.FC<RunReportForm> = ({ closePanel }) => {
       allRequiredParametersValid &&
       !hasInvalidDateRange &&
       reportUuid !== '' &&
-      renderModeUuid !== ''
+      hasSelectableFormat
     ) {
       setIsFormValid(true);
     } else {
@@ -99,6 +100,7 @@ const RunReportForm: React.FC<RunReportForm> = ({ closePanel }) => {
     currentReport?.parameters,
     supportedParameterTypes,
     hasInvalidDateRange,
+    hasSelectableFormat,
   ]);
 
   function handleOnChange(event) {
@@ -120,6 +122,10 @@ const RunReportForm: React.FC<RunReportForm> = ({ closePanel }) => {
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
+
+      if (!hasSelectableFormat) {
+        return;
+      }
 
       setIsSubmitting(true);
 
@@ -162,7 +168,7 @@ const RunReportForm: React.FC<RunReportForm> = ({ closePanel }) => {
           },
         );
     },
-    [closePanel, reportParameters, reportUuid, renderModeUuid, t],
+    [closePanel, reportParameters, reportUuid, renderModeUuid, hasSelectableFormat, t],
   );
 
   return (

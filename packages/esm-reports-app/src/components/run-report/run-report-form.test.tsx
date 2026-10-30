@@ -2,7 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { of } from 'rxjs';
 import { closeOverlay } from '../../hooks/useOverlay';
-import { runReportObservable } from '../reports.resource';
+import { runReportObservable, useReportDesigns } from '../reports.resource';
 import RunReportForm from './run-report-form.component';
 
 jest.mock('@openmrs/esm-framework', () => ({
@@ -25,10 +25,7 @@ jest.mock('../reports.resource', () => ({
   runReportObservable: jest.fn(),
   useLocations: () => ({ locations: [] }),
   useNmrsCategories: () => ({ categories: {} }),
-  useReportDesigns: () => ({
-    reportDesigns: [{ uuid: 'excel', name: 'Excel' }],
-    mutateReportDesigns: mockMutateDesigns,
-  }),
+  useReportDesigns: jest.fn(),
   useReportDefinitions: () => ({
     reportDefinitions: [
       {
@@ -39,6 +36,7 @@ jest.mock('../reports.resource', () => ({
           { name: 'endDate', label: 'End Date', type: 'java.util.Date', required: true },
         ],
       },
+      { uuid: '65dba83d-b268-48af-a7ee-dd1626cd37a1', name: 'HTS EXPORT', parameters: [] },
     ],
   }),
 }));
@@ -46,6 +44,12 @@ const mockMutateDesigns = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.mocked(useReportDesigns).mockReturnValue({
+    reportDesigns: [{ uuid: 'excel', name: 'Excel' }],
+    mutateReportDesigns: mockMutateDesigns,
+    error: undefined,
+    isValidating: false,
+  });
   jest.mocked(runReportObservable).mockReturnValue(of({}) as ReturnType<typeof runReportObservable>);
 });
 
@@ -97,4 +101,32 @@ it('submits the same NMRS report and date parameters', async () => {
     }),
   );
   await waitFor(() => expect(closePanel).toHaveBeenCalledTimes(1));
+});
+
+it('blocks submission if a previously selected design is no longer selectable', () => {
+  const { rerender } = render(<RunReportForm closePanel={jest.fn()} />);
+  chooseReport();
+  fireEvent.change(screen.getByLabelText('Start Date'), { target: { value: '2026-10-01' } });
+  fireEvent.change(screen.getByLabelText('End Date'), { target: { value: '2026-10-14' } });
+  expect(screen.getByRole('button', { name: 'Run' })).toBeEnabled();
+
+  jest.mocked(useReportDesigns).mockReturnValue({
+    reportDesigns: [],
+    mutateReportDesigns: mockMutateDesigns,
+    error: undefined,
+    isValidating: false,
+  });
+  rerender(<RunReportForm closePanel={jest.fn()} />);
+  expect(screen.getByRole('button', { name: 'Run' })).toBeDisabled();
+  fireEvent.submit(screen.getByRole('button', { name: 'Run' }));
+  expect(runReportObservable).not.toHaveBeenCalled();
+});
+
+it('clears the previous format when the selected report changes', () => {
+  render(<RunReportForm closePanel={jest.fn()} />);
+  chooseReport();
+  fireEvent.change(screen.getByLabelText('Report'), { target: { value: '65dba83d-b268-48af-a7ee-dd1626cd37a1' } });
+  expect(screen.getByLabelText('Output format')).toHaveValue('');
+  expect(screen.getByRole('button', { name: 'Run' })).toBeDisabled();
+  expect(runReportObservable).not.toHaveBeenCalled();
 });

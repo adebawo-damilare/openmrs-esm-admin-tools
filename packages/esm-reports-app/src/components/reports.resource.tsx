@@ -8,7 +8,8 @@ import type { ReportDesign } from '../types/report-design';
 import type { ReportRequest } from '../types/report-request';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { filterReportDesigns } from './run-report/report-output-formats';
 
 export interface ReportModel {
   reportName: string;
@@ -159,8 +160,13 @@ export function useReportDesigns(reportDefinitionUuid: string) {
     openmrsFetch,
   );
 
+  const reportDesigns = useMemo(
+    () => filterReportDesigns(reportDefinitionUuid, data?.data?.results),
+    [reportDefinitionUuid, data],
+  );
+
   return {
-    reportDesigns: data?.data.results,
+    reportDesigns,
     error,
     isValidating: isValidating,
     mutateReportDesigns: mutate,

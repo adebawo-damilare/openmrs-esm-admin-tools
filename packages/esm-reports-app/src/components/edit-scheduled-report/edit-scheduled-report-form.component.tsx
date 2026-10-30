@@ -29,6 +29,7 @@ const EditScheduledReportForm: React.FC<EditScheduledReportForm> = ({
 
   const [reportParameters, setReportParameters] = useState(reportRequest?.parameterMappings || {});
   const [renderModeUuid, setRenderModeUuid] = useState<string>();
+  const hasSelectableFormat = reportDesigns?.some((design) => design.uuid === renderModeUuid) ?? false;
   const [initialCron, setInitialCron] = useState();
   const [schedule, setSchedule] = useState('');
 
@@ -48,6 +49,10 @@ const EditScheduledReportForm: React.FC<EditScheduledReportForm> = ({
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
+
+      if (!hasSelectableFormat) {
+        return;
+      }
 
       setIsSubmitting(true);
 
@@ -88,7 +93,16 @@ const EditScheduledReportForm: React.FC<EditScheduledReportForm> = ({
           },
         );
     },
-    [reportRequestUuid, reportDefinitionUuid, reportParameters, renderModeUuid, schedule, t, closePanel],
+    [
+      reportRequestUuid,
+      reportDefinitionUuid,
+      reportParameters,
+      renderModeUuid,
+      hasSelectableFormat,
+      schedule,
+      t,
+      closePanel,
+    ],
   );
 
   const handleOnChange = () => {
@@ -100,8 +114,8 @@ const EditScheduledReportForm: React.FC<EditScheduledReportForm> = ({
   };
 
   useEffect(() => {
-    setIsSubmittable(!!schedule && !!renderModeUuid);
-  }, [schedule, renderModeUuid]);
+    setIsSubmittable(!!schedule && hasSelectableFormat);
+  }, [schedule, hasSelectableFormat]);
 
   return (
     <Form className={styles.desktopEditSchedule} onChange={handleOnChange} onSubmit={handleSubmit}>
@@ -124,7 +138,7 @@ const EditScheduledReportForm: React.FC<EditScheduledReportForm> = ({
           id="outputFormat"
           labelText={t('outputFormat', 'Output format')}
           onChange={(e) => setRenderModeUuid(e.target.value)}
-          value={renderModeUuid}
+          value={hasSelectableFormat ? renderModeUuid : ''}
         >
           <SelectItem text="" value={''} />
           {reportDesigns?.map((reportDesign) => (
