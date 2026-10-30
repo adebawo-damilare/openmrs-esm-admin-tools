@@ -1,6 +1,6 @@
 {
   "name": "@nmrs-community/esm-reports-app",
-  "version": "5.2.10",
+  "version": "5.2.11",
   "license": "MPL-2.0",
   "description": "Reports admin dashboard for 03",
   "browser": "dist/nmrs-community-esm-reports-app.js",
