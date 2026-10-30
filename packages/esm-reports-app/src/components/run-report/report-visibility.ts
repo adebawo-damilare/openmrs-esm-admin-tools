@@ -3,7 +3,14 @@ import type { ReportDefinition } from '../../types/report-definition';
 export const CANONICAL_ART_LINELIST_REPORT_UUID = 'fba05caa-7445-4bf4-acfc-d16d655e2500';
 export const LEGACY_ART_LINELIST_REPORT_UUID = '786688c2-2f13-481b-9459-99dd7e2f6899';
 export const SI_RADET_REPORT_UUID = '45af899b-f6d2-4a46-b89a-e6b5696dd7de';
-export const EXCLUDED_REPORT_UUIDS = [LEGACY_ART_LINELIST_REPORT_UUID, SI_RADET_REPORT_UUID] as const;
+// This separate saved definition is not the reviewed 319982d1 report and has no output formats.
+// Hide it by identity, not by name or missing formats; preserve its historical requests in OpenMRS.
+export const LEGACY_MISSED_APPOINTMENT_REPORT_UUID = '121017a4-bc6e-47ad-95bb-62f44d11bee3';
+export const EXCLUDED_REPORT_UUIDS = [
+  LEGACY_ART_LINELIST_REPORT_UUID,
+  SI_RADET_REPORT_UUID,
+  LEGACY_MISSED_APPOINTMENT_REPORT_UUID,
+] as const;
 
 // Remove a report name from this array when it is ready to appear in the Run report list.
 export const EXCLUDED_REPORT_NAMES = [

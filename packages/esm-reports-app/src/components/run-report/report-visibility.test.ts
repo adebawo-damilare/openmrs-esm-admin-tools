@@ -4,6 +4,7 @@ import {
   EXCLUDED_REPORT_NAMES,
   filterAndSortReportDefinitions,
   LEGACY_ART_LINELIST_REPORT_UUID,
+  LEGACY_MISSED_APPOINTMENT_REPORT_UUID,
   SI_RADET_REPORT_UUID,
 } from './report-visibility';
 
@@ -54,6 +55,7 @@ describe('filterAndSortReportDefinitions', () => {
       ...EXCLUDED_REPORT_NAMES.map((name, index) => createReportDefinition(name, `hidden-report-${index}`)),
       createReportDefinition('ART Linelist', LEGACY_ART_LINELIST_REPORT_UUID),
       createReportDefinition('ART - LINELIST', SI_RADET_REPORT_UUID),
+      createReportDefinition('MISSED APPOINTMENT', LEGACY_MISSED_APPOINTMENT_REPORT_UUID),
     ];
     const originalDefinitions = definitions.map((definition) => ({ ...definition }));
 
@@ -242,6 +244,32 @@ describe('filterAndSortReportDefinitions', () => {
     expect(filterAndSortReportDefinitions(definitions)).toEqual([missed]);
     expect(definitions[1]).toBe(missed);
     expect(definitions).toHaveLength(2);
+  });
+
+  it.each(['MISSED APPOINTMENT', 'Missed Appointment', 'Renamed historical appointment report'])(
+    'hides the obsolete missed-appointment UUID named "%s" while retaining the reviewed definition',
+    (legacyName) => {
+      const reviewed = createReportDefinition('MISSED APPOINTMENT', '319982d1-68dd-45f6-a0ef-ef1dc4e883dd');
+      const legacy = createReportDefinition(legacyName, LEGACY_MISSED_APPOINTMENT_REPORT_UUID);
+      const definitions = [legacy, reviewed];
+
+      expect(filterAndSortReportDefinitions(definitions)).toEqual([reviewed]);
+      expect(definitions).toEqual([legacy, reviewed]);
+      expect(definitions[1]).toBe(reviewed);
+    },
+  );
+
+  it('does not hide unrelated definitions merely because they share the missed-appointment name', () => {
+    const reviewed = createReportDefinition('MISSED APPOINTMENT', '319982d1-68dd-45f6-a0ef-ef1dc4e883dd');
+    const custom = createReportDefinition('MISSED APPOINTMENT', 'custom-report');
+
+    expect(filterAndSortReportDefinitions([reviewed, custom])).toEqual([reviewed, custom]);
+  });
+
+  it('does not offer the obsolete missed-appointment definition as a fallback when the reviewed one is absent', () => {
+    const legacy = createReportDefinition('MISSED APPOINTMENT', LEGACY_MISSED_APPOINTMENT_REPORT_UUID);
+
+    expect(filterAndSortReportDefinitions([legacy])).toEqual([]);
   });
 
   it('shows the reviewed active-regimen snapshot without exposing the unreviewed CTD report or mutating identity', () => {
