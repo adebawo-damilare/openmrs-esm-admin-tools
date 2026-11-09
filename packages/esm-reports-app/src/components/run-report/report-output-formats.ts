@@ -2,6 +2,7 @@ import type { ReportDesign } from '../../types/report-design';
 
 export const CSV_REPORT_RENDERER = 'org.openmrs.module.reporting.report.renderer.CsvReportRenderer';
 export const EXCEL_REPORT_RENDERER = 'org.openmrs.module.reporting.report.renderer.XlsReportRenderer';
+export const APPOINTMENT_EXCEL_REPORT_RENDERER = 'org.openmrs.module.nmrsreports.report.AppointmentExcelReportRenderer';
 export const VIRAL_LOAD_ELIGIBILITY_REPORT_UUID = '9d363fa4-e132-4a39-962f-c9872e285172';
 export const MISLABELLED_VL_EXCEL_DESIGN_UUID = '4af1952d-5443-40aa-b804-fa7c68469a5a';
 
@@ -39,6 +40,10 @@ const standardFormatNames = new Map([
   [CSV_REPORT_RENDERER, 'CSV'],
   [EXCEL_REPORT_RENDERER, 'Excel'],
 ]);
+const appointmentExcelDesigns = new Map([
+  ['2bcc0d06-8120-4d85-99a7-530675b080e6', 'ad664559-ed92-4e38-9123-197813d4ae57'],
+  ['319982d1-68dd-45f6-a0ef-ef1dc4e883dd', '8943bea2-be11-4bb1-ba2a-39d906ed011d'],
+]);
 
 /** Presentation-only: never retires designs or alters previously saved report requests. */
 export function filterReportDesigns(reportUuid: string, designs: ReportDesign[] = []): ReportDesign[] {
@@ -46,11 +51,14 @@ export function filterReportDesigns(reportUuid: string, designs: ReportDesign[] 
     return designs;
   }
 
-  return designs
-    .filter(
-      (design) =>
-        standardFormatNames.has(design.rendererType) &&
-        !(reportUuid === VIRAL_LOAD_ELIGIBILITY_REPORT_UUID && design.uuid === MISLABELLED_VL_EXCEL_DESIGN_UUID),
-    )
-    .map((design) => ({ ...design, name: standardFormatNames.get(design.rendererType) }));
+  return designs.flatMap((design) => {
+    if (reportUuid === VIRAL_LOAD_ELIGIBILITY_REPORT_UUID && design.uuid === MISLABELLED_VL_EXCEL_DESIGN_UUID) {
+      return [];
+    }
+    const isAppointmentExcel =
+      design.rendererType === APPOINTMENT_EXCEL_REPORT_RENDERER &&
+      appointmentExcelDesigns.get(reportUuid) === design.uuid;
+    const name = isAppointmentExcel ? 'Excel' : standardFormatNames.get(design.rendererType);
+    return name ? [{ ...design, name }] : [];
+  });
 }

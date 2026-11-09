@@ -1,5 +1,6 @@
 import type { ReportDesign } from '../../types/report-design';
 import {
+  APPOINTMENT_EXCEL_REPORT_RENDERER,
   CSV_REPORT_RENDERER,
   EXCEL_REPORT_RENDERER,
   filterReportDesigns,
@@ -19,6 +20,19 @@ const web: ReportDesign = {
 it('scopes the standard-format policy to exactly 25 distinct reviewed identities', () => {
   expect(REVIEWED_REPORT_UUIDS).toHaveLength(25);
   expect(new Set(REVIEWED_REPORT_UUIDS).size).toBe(25);
+});
+
+it.each([
+  ['2bcc0d06-8120-4d85-99a7-530675b080e6', 'ad664559-ed92-4e38-9123-197813d4ae57'],
+  ['319982d1-68dd-45f6-a0ef-ef1dc4e883dd', '8943bea2-be11-4bb1-ba2a-39d906ed011d'],
+])('keeps appointment CSV and Excel available before and after the renderer upgrade for %s', (reportUuid, uuid) => {
+  for (const rendererType of [EXCEL_REPORT_RENDERER, APPOINTMENT_EXCEL_REPORT_RENDERER]) {
+    const design = { uuid, name: 'Spreadsheet', rendererType };
+    expect(filterReportDesigns(reportUuid, [csv, web, design])).toEqual([csv, { ...design, name: 'Excel' }]);
+  }
+  const mismatched = { uuid: 'other-design', name: 'Excel', rendererType: APPOINTMENT_EXCEL_REPORT_RENDERER };
+  expect(filterReportDesigns(reportUuid, [csv, mismatched])).toEqual([csv]);
+  expect(filterReportDesigns(VIRAL_LOAD_ELIGIBILITY_REPORT_UUID, [csv, { ...mismatched, uuid }])).toEqual([csv]);
 });
 
 it.each(REVIEWED_REPORT_UUIDS)('offers only the recorded CSV/Excel renderers for reviewed report %s', (reportUuid) => {
