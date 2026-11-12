@@ -16,7 +16,13 @@ const createReportDefinition = (name: string, uuid: string): ReportDefinition =>
 });
 
 describe('filterAndSortReportDefinitions', () => {
-  it('shows all 25 reviewed NMRS 1.1.13 reports together while retaining every remaining exclusion', () => {
+  it('shows the independent current-form PMTCT export without exposing the legacy antenatal export', () => {
+    const current = createReportDefinition('National PMTCT Export', 'ceea9066-bbef-4dee-bc21-a8ae4b6533b9');
+    const legacy = createReportDefinition('GENERAL ANTENATAL EXPORT', '3959a398-0ec7-45df-9ae2-5039ebfa736e');
+    expect(filterAndSortReportDefinitions([legacy, current])).toEqual([current]);
+  });
+
+  it('shows all 26 reviewed NMRS reports together while retaining every remaining exclusion', () => {
     const expectedNames = [
       'Active Patient By Regimen',
       'AHD Line List',
@@ -33,6 +39,7 @@ describe('filterAndSortReportDefinitions', () => {
       'HTS EXPORT',
       'LAB - Viral Loads',
       'MISSED APPOINTMENT',
+      'National PMTCT Export',
       'NCD Report',
       'OTZ Line List',
       'Patient Ever Enrolled',

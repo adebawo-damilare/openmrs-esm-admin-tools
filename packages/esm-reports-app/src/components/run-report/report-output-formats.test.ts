@@ -17,9 +17,9 @@ const web: ReportDesign = {
   rendererType: 'org.openmrs.module.reporting.report.renderer.SimpleHtmlReportRenderer',
 };
 
-it('scopes the standard-format policy to exactly 25 distinct reviewed identities', () => {
-  expect(REVIEWED_REPORT_UUIDS).toHaveLength(25);
-  expect(new Set(REVIEWED_REPORT_UUIDS).size).toBe(25);
+it('scopes the standard-format policy to exactly 26 distinct reviewed identities', () => {
+  expect(REVIEWED_REPORT_UUIDS).toHaveLength(26);
+  expect(new Set(REVIEWED_REPORT_UUIDS).size).toBe(26);
 });
 
 it.each([

@@ -21,6 +21,7 @@ export const REVIEWED_REPORT_UUIDS = [
   '65dba83d-b268-48af-a7ee-dd1626cd37a1', // HTS EXPORT
   '319982d1-68dd-45f6-a0ef-ef1dc4e883dd', // MISSED APPOINTMENT
   '827ece1f-98f9-4d58-9a0a-9a013f41cb25', // NCD Report
+  'ceea9066-bbef-4dee-bc21-a8ae4b6533b9', // National PMTCT Export (current form only)
   'cbc1c600-0535-4158-9101-c31ffb4a5ead', // OTZ Line List
   '767e60b7-5671-4d0d-850e-934a1b48474a', // Patient Ever Enrolled
   '5165f183-74f8-47ee-b84d-e18432524c13', // ERROR - PHARMACY FORM WITHOUT REGIMEN LINE OR REGIMEN
