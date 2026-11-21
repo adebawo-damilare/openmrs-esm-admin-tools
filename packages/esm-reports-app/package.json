@@ -30,14 +30,15 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/openmrs/openmrs-esm-admin-tools.git"
+    "url": "git+https://github.com/adebawo-damilare/openmrs-esm-admin-tools.git",
+    "directory": "packages/esm-reports-app"
   },
-  "homepage": "https://github.com/openmrs/openmrs-esm-admin-tools#readme",
+  "homepage": "https://github.com/adebawo-damilare/openmrs-esm-admin-tools/tree/main/packages/esm-reports-app#readme",
   "publishConfig": {
     "access": "public"
   },
   "bugs": {
-    "url": "https://github.com/openmrs/openmrs-esm-admin-tools/issues"
+    "url": "https://github.com/adebawo-damilare/openmrs-esm-admin-tools/issues"
   },
   "dependencies": {
     "@carbon/react": "^1.83.0",
